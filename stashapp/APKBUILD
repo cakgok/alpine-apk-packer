@@ -45,16 +45,12 @@ python() {
     pkgdesc="Python runtime and pip for $pkgname plugins"
 	depends="python3 py3-pip py3-requests py3-requests-toolbelt py3-lxml py3-beautifulsoup4 py3-urllib3 py3-certifi py3-pyparsing"
 
-	export PYTHONUSERBASE="$subpkgdir/usr/lib/stash/python"
-	install -dm755 "$PYTHONUSERBASE"
 	python3 -m pip install \
 		--root="$subpkgdir" --prefix=/usr \
 		--no-cache-dir \
 		--disable-pip-version-check \
 		--break-system-packages \
 		mechanicalsoup cloudscraper stashapp-tools
-
-	find "$PYTHONUSERBASE/bin" -type f -exec install -Dm755 {} "$subpkgdir/usr/bin/$(basename {})" \;
 }
 
 sha512sums="
