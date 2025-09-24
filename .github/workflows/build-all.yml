@@ -14,13 +14,15 @@ jobs:
     with:
       APP: bazarr
       UPSTREAM: morpheus65535/bazarr
-  
+    secrets: inherit     
+
   stash:
     needs: bazarr
     uses: ./.github/workflows/build.yml
     with:
       APP: stash
       UPSTREAM: stashapp/stash
+    secrets: inherit     
 
   jellyseerr:
     needs: stash
@@ -28,6 +30,7 @@ jobs:
     with:
       APP: jellyseerr
       UPSTREAM: fallenbagel/jellyseerr
+    secrets: inherit     
 
   tautulli:
     needs: jellyseerr
@@ -35,3 +38,5 @@ jobs:
     with:
       APP: tautulli
       UPSTREAM: tautulli/tautulli
+    secrets: inherit     
+
