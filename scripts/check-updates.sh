@@ -12,15 +12,18 @@ fi
 
 apkbuild_path="${APP_NAME}/APKBUILD"
 
-
 echo "Fetching latest release from upstream: $UPSTREAM_REPO"
+
 latest_tag=$(
-    curl -sfSL -H "Accept: application/vnd.github+json" \
-            -H "User-Agent: single-app-update-checker" \
-            "${auth_header[@]}" \
-            "https://api.github.com/repos/${UPSTREAM_REPO}/releases/latest" \
-    | jq -r '.tag_name // empty' | sed 's/^v//'
+  curl  --fail --show-error --location \
+        --retry 5 --retry-delay 2 --retry-all-errors \
+        -H "Accept: application/vnd.github+json" \
+        -H "User-Agent: single-app-update-checker" \
+        "${auth_header[@]}" \
+        "https://api.github.com/repos/${UPSTREAM_REPO}/releases/latest" \
+  | jq -r '.tag_name // empty' | sed 's/^v//'
 )
+
 
 if [[ -z "$latest_tag" ]]; then
     echo "Could not fetch a valid release tag from $UPSTREAM_REPO. Assuming no update."
