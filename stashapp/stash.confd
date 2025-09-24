@@ -1,0 +1,7 @@
+# /etc/conf.d/stash
+command_user="stash:stash"
+directory="/var/lib/stash"
+logdir="/var/log/stash"
+umask=0002
+
+  

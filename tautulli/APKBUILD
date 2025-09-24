@@ -1,0 +1,58 @@
+pkgname=tautulli
+pkgver=2.13.4
+pkgrel=0
+pkgdesc="A Python based monitoring and tracking tool for Plex Media Server"
+url="https://tautulli.com"
+arch="x86_64"
+license="GPL-3.0-or-later"
+depends="
+  python3
+  py3-setuptools
+  py3-apscheduler
+  py3-cryptography
+  py3-openssl         
+"
+makedepends=""
+subpackages="$pkgname-openrc::x86_64"
+source="$pkgname-$pkgver.tar.gz::https://github.com/Tautulli/Tautulli/archive/v$pkgver.tar.gz
+	tautulli.initd
+	tautulli.confd
+	"
+pkgusers="tautulli"
+pkggroups="tautulli"
+options="!check"
+
+build() {
+	true
+}
+
+package() {
+    install -dm755 "$pkgdir/usr/lib/tautulli"
+    install -dm755 "$pkgdir/usr/bin"
+    install -dm755 "$pkgdir/var/lib/tautulli"
+	install -dm755 "$pkgdir/var/log/tautulli"
+	install -dm755 "$pkgdir/etc/tautulli"
+
+    cp -a "$builddir"/. "$pkgdir/usr/lib/tautulli/"
+
+    # Create wrapper script
+    cat > "$pkgdir/usr/bin/tautulli" <<-EOF
+		#!/bin/sh
+		cd /usr/lib/tautulli
+		exec /usr/bin/python3 Tautulli.py "\$@"
+	EOF
+    chmod +x "$pkgdir/usr/bin/tautulli"
+
+    install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
+    install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+
+	echo "v$pkgver" > "$pkgdir"/usr/lib/tautulli/version.txt
+	echo "master" > "$pkgdir"/usr/lib/tautulli/branch.txt
+}
+
+
+sha512sums="
+SKIP
+SKIP
+SKIP
+"

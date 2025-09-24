@@ -1,0 +1,68 @@
+name: Publish to Alpine repo
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  push:
+    branches: [ main ]
+    paths:
+        - 'apps/**'
+  workflow_call:
+    inputs:
+      app_name:
+        required: true
+        type: string
+      artifact_name:
+        required: true
+        type: string
+    secrets:
+      KEY_NAME: {}
+      PACKAGER_PRIVKEY: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: true
+    steps:
+    - run: apk add --no-cache alpine-sdk apk-tools openssl tar gzip
+    - uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: repo
+        fetch-depth: 1
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: repo/main/x86_64
+
+    - name: Set up signing key
+      env:
+        KEY_NAME:      ${{ secrets.KEY_NAME }}
+        PRIVATE_KEY:   ${{ secrets.PACKAGER_PRIVKEY }}
+      run: |
+        mkdir -p ~/.abuild
+        echo "$PRIVATE_KEY" > ~/.abuild/${KEY_NAME}
+        chmod 600 ~/.abuild/${KEY_NAME}
+
+    - working-directory: repo/main/x86_64
+      run: |
+        apk index -o APKINDEX.tar.gz *.apk
+        abuild-sign -k ~/.abuild/${{ secrets.KEY_NAME }} APKINDEX.tar.gz
+
+    - run: rm -rf repo/.git
+    - uses: actions/upload-pages-artifact@v3
+      with:
+        path: repo
+    - id: deploy
+      uses: actions/deploy-pages@v4
+
+
+
+      

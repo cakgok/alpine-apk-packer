@@ -1,0 +1,7 @@
+# /etc/conf.d/bazarr
+# This file is sourced by the /etc/init.d/bazarr script and allows you
+# to override default settings.
+command_user="bazarr:bazarr"
+directory="/var/lib/bazarr"
+
+  

@@ -1,0 +1,63 @@
+pkgname=jellyseerr
+pkgver=1.7.0
+pkgrel=0
+pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
+url="https://github.com/Fallenbagel/jellyseerr"
+arch="x86_64"
+license="MIT"
+depends="nodejs-current"
+makedepends="corepack sqlite-libs"
+subpackages="$pkgname-openrc::x86_64"
+source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
+        jellyseerr.initd
+        jellyseerr.confd
+       "
+       
+pkgusers="jellyseerr"
+pkggroups="jellyseerr"
+options="!check net"
+
+prepare() {
+  default_prepare
+  corepack enable
+  corepack prepare pnpm@9 --activate
+}
+
+build() {
+    export NODE_ENV=production
+    export CYPRESS_INSTALL_BINARY=0
+    pnpm install --frozen-lockfile     # installs deps into node_modules
+    pnpm run build                     # outputs to dist/
+    pnpm prune --prod
+}
+
+package() {
+  install -dm755 "$pkgdir/usr/lib/jellyseerr"
+  install -dm755 "$pkgdir/usr/bin"
+  install -dm755 "$pkgdir/var/lib/jellyseerr"
+  install -dm755 "$pkgdir/var/log/jellyseerr"
+
+  cp -a "$builddir"/{package.json,dist,public,node_modules,.next} "$pkgdir/usr/lib/jellyseerr/"
+  echo "{\"commitTag\":\"v$pkgver\"}" > "$pkgdir/usr/lib/jellyseerr/committag.json"
+
+  #wrapper
+  cat > "$pkgdir/usr/bin/jellyseerr" <<-EOF
+  #!/bin/sh
+  cd /usr/lib/jellyseerr
+  exec /usr/bin/node dist/index.js "$@"
+EOF
+
+  chmod +x "$pkgdir/usr/bin/jellyseerr"
+
+  install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
+  install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+
+  ln -s /var/lib/jellyseerr "$pkgdir/usr/lib/jellyseerr/config"
+}
+
+
+sha512sums="
+SKIP
+SKIP
+SKIP
+"

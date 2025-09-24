@@ -1,0 +1,118 @@
+name: Build-and-release          
+on:
+  workflow_call:
+    inputs:
+      APP:
+        required: true
+        type: string
+      UPSTREAM:
+        required: true
+        type: string
+
+concurrency:                              
+  group: apk-${{ inputs.APP }}
+  cancel-in-progress: false
+
+env:
+  TARGET_ARCH: x86_64
+  APP:      ${{ inputs.APP }}
+  UPSTREAM: ${{ inputs.UPSTREAM }}
+
+jobs:
+  detect-updates:
+    runs-on: ubuntu-latest
+
+    outputs:
+      has_updates: ${{ steps.check-updates.outputs.has_updates }}
+      new_version: ${{ steps.check-updates.outputs.new_version }}
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Check for app updates
+      id: check-updates
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run:  bash ./scripts/check-updates.sh
+  
+  update-apkbuild:
+    needs: detect-updates
+    if: needs.detect-updates.outputs.has_updates == 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Update APKBUILD
+      run: bash ./scripts/update-apkbuild.sh "${{env.APP}}" "${{ needs.detect-updates.outputs.new_version }}"
+    - name: Commit & tag
+      run: bash ./scripts/commit-and-tag.sh "${{env.APP}}" "${{ needs.detect-updates.outputs.new_version }}"
+  
+  build-apk:
+    needs: [detect-updates, update-apkbuild]
+    if: needs.detect-updates.outputs.has_updates == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.ref }}
+        fetch-depth: 0
+
+    - name: Build APK 
+      env:
+        KEY_NAME: ${{ secrets.KEY_NAME }}
+        PRIVATE_KEY: ${{ secrets.PACKAGER_PRIVKEY }}
+        TARGET_ARCH: x86_64
+        APP_NAME: ${{env.APP}}
+      run: bash ./scripts/build.sh
+    
+    - name: Upload ${{env.APP}} artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{env.APP}}-x86_64-apk
+        path: ${{env.APP}}/out/
+        retention-days: 30
+    
+  create-releases:
+    needs: [detect-updates, build-apk]
+    if: needs.detect-updates.outputs.has_updates == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download ${{env.APP}} artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{env.APP}}-x86_64-apk
+        path: artifacts
+
+    - name: Create GitHub release
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      with:
+        tag_name:  ${{env.APP}}-v${{ needs.detect-updates.outputs.new_version }}
+        name:      ${{env.APP}}-v${{ needs.detect-updates.outputs.new_version }} (Alpine x86_64)
+        draft:     false
+        prerelease: false
+        files:     artifacts/*.apk
+        body: |
+          Built automatically from upstream release:  
+          https://github.com/${{ env.UPSTREAM }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}  

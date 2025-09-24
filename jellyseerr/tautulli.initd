@@ -1,0 +1,25 @@
+#!/sbin/openrc-run
+# /etc/init.d/tautulli
+
+name="Tautulli"
+description="Tautulli Service"
+
+datadir="${datadir:-/var/lib/tautulli}"
+logdir="${logdir:-/var/log/tautulli}"
+command_user="${command_user:-tautulli:tautulli}"
+
+supervisor="supervise-daemon"
+command="/usr/bin/tautulli"
+command_args="--datadir ${datadir} --config ${configdir}/config.ini --logdir ${logdir} --nolaunch"
+respawn_delay=5
+respawn_max=10
+pidfile="/run/${RC_SVCNAME}.pid"          
+
+depend() {
+	need net 
+}
+
+start_pre() {
+    checkpath --directory --mode 0755 --owner "${command_user}" "${directory}"
+    checkpath --directory --mode 0755 --owner "${command_user}" "${logdir}"
+}

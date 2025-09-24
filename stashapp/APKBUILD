@@ -1,0 +1,59 @@
+pkgname=stash
+pkgver=0
+pkgrel=0
+pkgdesc="An organizer for your porn, written in Go"
+url="https://github.com/stashapp/stash"
+arch="x86_64"
+license="AGPL-3.0-only"
+depends="ca-certificates ffmpeg tzdata vips vips-tools"
+options="!check !strip"
+
+subpackages="$pkgname-openrc::x86_64 $pkgname-python::x86_64"
+
+install="$pkgname.pre-install"
+backup="etc/stash/config.yml" 
+
+source="
+	stash-linux::https://github.com/stashapp/stash/releases/download/v$pkgver/stash-linux
+	stash.initd
+	stash.confd
+	"
+
+pkgusers="stash"
+pkggroups="stash" 
+
+prepare() {
+	default_prepare
+}
+
+build() {
+	true
+}
+
+package() {
+	install -dm755 "$pkgdir/var/lib/stash"
+	install -dm755 "$pkgdir/var/log/stash"
+	install -dm755 "$pkgdir/etc/stash"
+
+	install -Dm755 "$srcdir"/stash-linux "$pkgdir"/usr/bin/stash
+	install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
+	install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+}
+
+package_python() {
+    pkgdesc="Python runtime and pip for $pkgname plugins"
+    depends="python3 py3-pip py3-requests py3-requests-toolbelt py3-lxml"
+
+	export PYTHONUSERBASE="$subpkgdir/usr/lib/stash/python"
+	install -dm755 "$PYTHONUSERBASE"
+	pip install --no-cache-dir --disable-pip-version-check --break-system-packages --user \
+		mechanicalsoup cloudscraper stashapp-tools
+
+	find "$PYTHONUSERBASE/bin" -type f -exec install -Dm755 {} "$subpkgdir/usr/bin/$(basename {})" \;
+}
+
+sha512sums="
+SKIP
+SKIP
+SKIP
+"

@@ -1,0 +1,5 @@
+# /etc/conf.d/tautulli
+command_user="tautulli:tautulli"
+datadir="/var/lib/tautulli"
+logdir="/var/log/tautulli"
+configdir="/etc/tautulli"

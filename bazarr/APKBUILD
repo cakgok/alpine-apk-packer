@@ -1,0 +1,102 @@
+pkgname=bazarr
+pkgver=1.5.3
+pkgrel=0
+pkgdesc="Bazarr – companion app for Sonarr/Radarr that fetches subtitles"
+url="https://bazarr.media"
+arch="x86_64"
+license="GPL-3.0-or-later"
+
+depends="
+    7zip 
+    ffmpeg
+    mediainfo
+    python3
+    py3-wheel
+    py3-lxml
+    py3-numpy
+    py3-gevent
+    py3-cryptography
+    py3-setuptools
+    py3-psycopg2
+    py3-pillow
+    "
+
+makedepends="
+    py3-pip
+    gcc
+    python3-dev
+    musl-dev
+    unzip
+    "
+
+options="!check"
+
+pkgusers="bazarr"
+pkggroups="bazarr"
+install="$pkgname.pre-install"
+subpackages="$pkgname-openrc::x86_64"
+
+source="$pkgname-$pkgver.zip::https://github.com/morpheus65535/bazarr/releases/download/v$pkgver/bazarr.zip
+  bazarr.initd
+  bazarr.confd
+"
+
+prepare() {
+    # Isolate the unpacked contents
+    mkdir -p "$srcdir/unpacked"
+    unzip -q "$srcdir/$pkgname-$pkgver.zip" -d "$srcdir/unpacked"
+    # Find the actual root of the source code
+    local _app_root="$srcdir/unpacked"
+    cd "$_app_root"
+    # Check if there's a nested zip
+    set -- *
+    if [ $# -eq 1 ] && [ -d "$1" ]; then
+        _app_root="$_app_root/$1"
+    fi
+    # Create clean folder for the app src
+    mkdir -p "$srcdir/app-source"
+    # Copy only the app files into the dir
+    cp -a "$_app_root/." "$srcdir/app-source/"
+    # Clean up
+    rm -rf "$srcdir/unpacked"
+}
+build() {
+    python3 -m pip install \
+        --no-cache-dir --no-deps           \
+        --only-binary=:all:                \
+        --no-index                         \
+        --dest="$srcdir/wheelhouse"  \
+        "webrtcvad-wheels==2.0.10"
+        # webrtcvad actually in testing, consider moving it into depeneds
+        # and get rid of 2-step pip install
+}
+
+package() {
+    install -dm755 "$pkgdir/usr/lib/bazarr" 
+    install -dm755 "$pkgdir/usr/bin"
+    install -dm755 "$pkgdir/var/lib/bazarr"
+
+    cp -a "$srcdir/app-source"/. "$pkgdir/usr/lib/bazarr/"
+    pip install \
+        --break-system-packages \
+        --no-deps --no-cache-dir --no-index \
+        --find-links="$srcdir/wheelhouse" \
+        --root="$pkgdir" --prefix=/usr \
+        "webrtcvad-wheels>=2.0.10"
+
+    cat > "$pkgdir/usr/bin/bazarr" <<-EOF
+		#!/bin/sh
+		# Wrapper script to launch bazarr from /usr/bin
+		cd /usr/lib/bazarr
+		exec /usr/bin/python3 bazarr.py "\$@"
+	EOF
+
+    install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
+	install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+}
+
+sha512sums="
+7ec1366a94a26722b5b4bb17d33600a3f96379bbaad9a4a0337a98be11d9f5ed95b635be1bee2eee3c4e4455ca3d02497018f4579074ec91163836af2db42dbd  bazarr-1.5.3.zip
+db7cc7e12ffc783a3b905ea12b4bd11006490f02f163de7bf3fb2a506677e459940a60fb0ffc9fd4a57692f51df5b3b0ff3497363aea514bfd5247473b201a25  bazarr.initd
+799aa65c4913206c60b86b0ba9f3424e21205b0f7ecf2e3ad2dde517a724bf7a0ad000c91cf86aa028eea95d13667b2cdcda6a81a8f830ecb9d5faf46c7d8879  bazarr.confd
+"

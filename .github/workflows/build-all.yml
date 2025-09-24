@@ -1,0 +1,31 @@
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+jobs:
+  bazarr:
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: bazarr
+      UPSTREAM: morpheus65535/bazarr
+
+  stash:
+    needs: bazarr
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: stash
+      UPSTREAM: stashapp/stash
+
+  jellyseerr:
+    needs: stash
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: jellyseerr
+      UPSTREAM: fallenbagel/jellyseerr
+
+  tautulli:
+    needs: jellyseerr
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: tautulli
+      UPSTREAM: tautulli/tautulli
