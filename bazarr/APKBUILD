@@ -66,8 +66,8 @@ build() {
         --no-cache-dir --no-deps           \
         --only-binary=:all:                \
         --dest="$srcdir/wheelhouse"  \
-        "webrtcvad-wheels==2.0.10"
-        # webrtcvad actually in testing, consider moving it into depeneds
+        "webrtcvad-wheels>=2.0.14"
+        # webrtcvad actually in edge/testing, consider moving it into depeneds
         # and get rid of 2-step pip install
 }
 
