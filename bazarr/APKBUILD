@@ -57,8 +57,10 @@ prepare() {
     # Copy only the app files into the dir
     cp -a "$_app_root/." "$srcdir/app-source/"
     # Clean up
+    cd "$srcdir"
     rm -rf "$srcdir/unpacked"
 }
+
 build() {
     python3 -m pip install \
         --no-cache-dir --no-deps           \
