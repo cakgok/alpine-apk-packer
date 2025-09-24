@@ -62,7 +62,7 @@ prepare() {
 }
 
 build() {
-    python3 -m pip install \
+    python3 -m pip download \
         --no-cache-dir --no-deps           \
         --only-binary=:all:                \
         --no-index                         \
