@@ -41,7 +41,7 @@ package() {
 	install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 }
 
-package_python() {
+python() {
     pkgdesc="Python runtime and pip for $pkgname plugins"
 	depends="python3 py3-pip py3-requests py3-requests-toolbelt py3-lxml py3-beautifulsoup4 py3-urllib3 py3-certifi py3-pyparsing"
 
