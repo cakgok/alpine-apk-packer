@@ -65,7 +65,6 @@ build() {
     python3 -m pip download \
         --no-cache-dir --no-deps           \
         --only-binary=:all:                \
-        --no-index                         \
         --dest="$srcdir/wheelhouse"  \
         "webrtcvad-wheels==2.0.10"
         # webrtcvad actually in testing, consider moving it into depeneds
