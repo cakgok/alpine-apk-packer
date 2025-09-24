@@ -1,14 +1,20 @@
+name: Build All          
 on:
   schedule:
     - cron: '0 5 * * *'
   workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: read
+
 jobs:
   bazarr:
     uses: ./.github/workflows/build.yml
     with:
       APP: bazarr
       UPSTREAM: morpheus65535/bazarr
-
+  
   stash:
     needs: bazarr
     uses: ./.github/workflows/build.yml
