@@ -47,8 +47,13 @@ python() {
 
 	export PYTHONUSERBASE="$subpkgdir/usr/lib/stash/python"
 	install -dm755 "$PYTHONUSERBASE"
-	python3 -m pip install --no-deps --no-cache-dir --disable-pip-version-check --user \
+	python3 -m pip install \
+		--root="$subpkgdir" --prefix=/usr \
+		--no-cache-dir \
+		--disable-pip-version-check \
+		--break-system-packages \
 		mechanicalsoup cloudscraper stashapp-tools
+
 	find "$PYTHONUSERBASE/bin" -type f -exec install -Dm755 {} "$subpkgdir/usr/bin/$(basename {})" \;
 }
 
