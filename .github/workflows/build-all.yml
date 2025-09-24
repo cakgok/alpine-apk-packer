@@ -16,16 +16,16 @@ jobs:
       UPSTREAM: morpheus65535/bazarr
     secrets: inherit     
 
-  stash:
+  stashapp:
     needs: bazarr
     uses: ./.github/workflows/build.yml
     with:
-      APP: stash
+      APP: stashapp
       UPSTREAM: stashapp/stash
     secrets: inherit     
 
   jellyseerr:
-    needs: stash
+    needs: stashapp
     uses: ./.github/workflows/build.yml
     with:
       APP: jellyseerr
