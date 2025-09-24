@@ -33,7 +33,6 @@ options="!check"
 
 pkgusers="bazarr"
 pkggroups="bazarr"
-install="$pkgname.pre-install"
 subpackages="$pkgname-openrc::x86_64"
 
 source="$pkgname-$pkgver.zip::https://github.com/morpheus65535/bazarr/releases/download/v$pkgver/bazarr.zip
