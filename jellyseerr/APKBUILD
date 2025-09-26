@@ -46,17 +46,18 @@ prepare() {
 }
 
 build() {
-	cd "$builddir"
-
-	export NEXT_TELEMETRY_DISABLED=1
-	export CYPRESS_INSTALL_BINARY=0
-  export SHARP_IGNORE_GLOBAL_LIBVIPS=1
-  
-  export PNPM_ALLOW_SCRIPTS="@swc/core bcrypt sharp sqlite3"
-  export npm_config_target_libc=musl
-
-	pnpm build
-	pnpm cache delete
+    cd "$builddir"
+    
+    export NEXT_TELEMETRY_DISABLED=1
+    export CYPRESS_INSTALL_BINARY=0
+    export SHARP_IGNORE_GLOBAL_LIBVIPS=1
+    export npm_config_target_libc=musl
+    export npm_config_target_platform=linux
+    export npm_config_target_arch=x64
+    
+    pnpm rebuild
+    pnpm build
+    pnpm cache delete
 }
 
 package() {
