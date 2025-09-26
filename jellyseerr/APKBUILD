@@ -6,7 +6,7 @@ url="https://github.com/Fallenbagel/jellyseerr"
 arch="x86_64"
 license="MIT"
 depends="nodejs vips"
-makedepends="nodejs npm curl vips vips-dev pnpm"
+makedepends="nodejs npm curl vips vips-dev"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
@@ -26,7 +26,9 @@ prepare() {
   export NEXT_TELEMETRY_DISABLED=1
 	export CYPRESS_INSTALL_BINARY=0
 	
-	pnpm install --frozen-lockfile --config.engine-strict=false
+  corepack enable
+  corepack prepare pnpm@9 --activate
+  pnpm install --frozen-lockfile
 }
 
 build() {
@@ -34,10 +36,13 @@ build() {
 
 	export NEXT_TELEMETRY_DISABLED=1
 	export CYPRESS_INSTALL_BINARY=0
-
-	pnpm build
-	pnpm prune --prod --ignore-scripts
-	pnpm cache delete
+  export COREPACK_ENABLE_STRICT=0
+  
+  corepack enable
+  corepack prepare pnpm@9 --activate
+  pnpm build
+  pnpm prune --prod --ignore-scripts
+  pnpm cache delete
 }
 
 package() {
