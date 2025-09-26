@@ -28,10 +28,16 @@ prepare() {
 	export CYPRESS_INSTALL_BINARY=0
   export SHARP_IGNORE_GLOBAL_LIBVIPS=1
 
-  npm config set fund false
-  npm config set audit false
-  npm install -g pnpm@9
-  export PATH="/usr/local/bin:$PATH" 
+  export PNPM_PREFIX="$builddir/.npm-global"
+  mkdir -p "$PNPM_PREFIX"
+
+  npm config --global set fund false
+  npm config --global set audit false
+  npm config --global set prefix "$PNPM_PREFIX"
+
+  npm install -g pnpm@9   # now writes under .npm-global
+  export PATH="$PNPM_PREFIX/bin:$PATH"
+
   pnpm install --frozen-lockfile
 }
 
@@ -43,6 +49,7 @@ build() {
     export CYPRESS_INSTALL_BINARY=0
     export SHARP_IGNORE_GLOBAL_LIBVIPS=1
     
+    export PATH="$PNPM_PREFIX/bin:$PATH"
     pnpm build
     pnpm cache delete
 }
@@ -61,7 +68,7 @@ package() {
 
   rm -rf "$app_dir/.next/cache"
 
-  export PATH="/usr/local/bin:$PATH"
+  export PATH="$PNPM_PREFIX/bin:$PATH"
   cd "$app_dir" && pnpm prune --pro
 
   echo "{\"commitTag\":\"v$pkgver\"}" > "$pkgdir/usr/lib/jellyseerr/committag.json"
