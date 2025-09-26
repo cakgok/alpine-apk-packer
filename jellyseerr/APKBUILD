@@ -21,8 +21,9 @@ prepare() {
 	default_prepare
 	cd "$builddir"
 
+  export npm_config_prefix="$builddir/.npm-global"
   npm install -g pnpm@9
-
+  export PATH="$builddir/.npm-global/bin:$PATH"
   export NEXT_TELEMETRY_DISABLED=1
   export CYPRESS_INSTALL_BINARY=0
 
