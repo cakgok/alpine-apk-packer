@@ -6,7 +6,7 @@ url="https://github.com/Fallenbagel/jellyseerr"
 arch="x86_64"
 license="MIT"
 depends="nodejs npm sqlite-libs libc6-compat libgcc libstdc++ musl-utils gcompat"
-makedepends="nodejs npm python3 make g++ pkgconfig gcompat"
+makedepends="nodejs npm python3 make g++ pkgconfig gcompat curl"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
@@ -15,7 +15,7 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archi
        
 pkgusers="jellyseerr"
 pkggroups="jellyseerr"
-options="!check"
+options="!check net"
 
 prepare() {
 	default_prepare
@@ -28,7 +28,11 @@ prepare() {
 	export CYPRESS_INSTALL_BINARY=0
   export SHARP_IGNORE_GLOBAL_LIBVIPS=1
 
-	npx pnpm@9 install --frozen-lockfile
+  npm config set fund false
+  npm config set audit false
+  npm install -g pnpm@9
+  export PATH="/usr/local/bin:$PATH" 
+  pnpm install --frozen-lockfile
 }
 
 
@@ -39,8 +43,8 @@ build() {
     export CYPRESS_INSTALL_BINARY=0
     export SHARP_IGNORE_GLOBAL_LIBVIPS=1
     
-    npx pnpm@9 build
-    npx pnpm@9 cache delete
+    pnpm build
+    pnpm cache delete
 }
 
 
@@ -56,7 +60,9 @@ package() {
   cp ./package.json ./jellyseerr-api.yml ./next.config.js "$app_dir/"
 
   rm -rf "$app_dir/.next/cache"
-  cd "$app_dir" && npx pnpm@9 prune --prod
+
+  export PATH="/usr/local/bin:$PATH"
+  cd "$app_dir" && pnpm prune --pro
 
   echo "{\"commitTag\":\"v$pkgver\"}" > "$pkgdir/usr/lib/jellyseerr/committag.json"
 
