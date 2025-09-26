@@ -22,7 +22,7 @@ prepare() {
 	cd "$builddir"
 
 	sed -i 's/"husky install"/"echo husky ignored"/' package.json
-	sed -i 's/"node": "[^"]*"/"node": "^24.0.0"/' package.json
+	sed -i 's/"node": "[^"]*"/"node": "^22.0.0"/' package.json
   sed -i 's/"pnpm": "[^"]*"/"pnpm": "^10.0.0"/' package.json
 
   # add allowed postinstall list
