@@ -95,6 +95,8 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: write
+      actions: write
+      workflows: write
 
     steps:
     - name: Checkout repository
@@ -131,5 +133,5 @@ jobs:
       run: |
         set -euo pipefail
         git fetch --tags --force
-        git tag -f "$LATEST_TAG" "$VERSION_TAG"
+        git tag -f "$LATEST_TAG" "$VERSION_TAG"^commit
         git push --force origin "refs/tags/$LATEST_TAG"
