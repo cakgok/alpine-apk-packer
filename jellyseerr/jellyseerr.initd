@@ -1,0 +1,28 @@
+#!/sbin/openrc-run
+# /etc/init.d/jellyseerr
+
+name="Jellyseerr"
+description="Jellyseerr Service"
+
+command_user="${command_user:-jellyseerr:jellyseerr}"
+CONFIG_DIRECTORY="${CONFIG_DIRECTORY:-/var/lib/jellyseerr}"
+NODE_ENV="${NODE_ENV:-production}"
+
+supervisor="supervise-daemon"
+command="/usr/bin/jellyseerr"
+respawn_delay=5
+respawn_max=10
+pidfile="/run/${RC_SVCNAME}.pid"
+
+depend() {
+	need net
+    use logger
+}
+
+start_pre() {
+    checkpath --directory --mode 0755 --owner "${command_user}" "${CONFIG_DIRECTORY}"
+    checkpath --directory --mode 0755 --owner "${command_user}" "${logdir}"
+
+    export NODE_ENV
+    export CONFIG_DIRECTORY
+}

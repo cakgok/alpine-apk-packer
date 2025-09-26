@@ -1,0 +1,5 @@
+# /etc/conf.d/jellyseerr
+command_user="jellyseerr:jellyseerr"
+
+NODE_ENV="production"
+CONFIG_DIRECTORY="/var/lib/jellyseerr"

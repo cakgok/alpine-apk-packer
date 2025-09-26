@@ -5,8 +5,8 @@ pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/Fallenbagel/jellyseerr"
 arch="x86_64"
 license="MIT"
-depends="nodejs-current"
-makedepends="corepack sqlite-libs"
+depends="nodejs"
+makedepends="nodejs npm curl vips vips-dev pnpm"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
@@ -18,26 +18,40 @@ pkggroups="jellyseerr"
 options="!check net"
 
 prepare() {
-  default_prepare
-  corepack enable
-  corepack prepare pnpm@9 --activate
+	default_prepare
+	cd "$builddir"
+
+	sed -i 's/husky install//' package.json || true
+
+  export NEXT_TELEMETRY_DISABLED=1
+	export CYPRESS_INSTALL_BINARY=0
+	
+	pnpm install --frozen-lockfile
 }
 
 build() {
-    export NODE_ENV=production
-    export CYPRESS_INSTALL_BINARY=0
-    pnpm install --frozen-lockfile     # installs deps into node_modules
-    pnpm run build                     # outputs to dist/
-    pnpm prune --prod
+	cd "$builddir"
+
+	export NEXT_TELEMETRY_DISABLED=1
+	export CYPRESS_INSTALL_BINARY=0
+
+	pnpm build
+	pnpm prune --prod --ignore-scripts
+	pnpm cache delete
 }
 
 package() {
+	local app_dir="$pkgdir/usr/lib/$pkgname"
+
   install -dm755 "$pkgdir/usr/lib/jellyseerr"
   install -dm755 "$pkgdir/usr/bin"
   install -dm755 "$pkgdir/var/lib/jellyseerr"
   install -dm755 "$pkgdir/var/log/jellyseerr"
 
-  cp -a "$builddir"/{package.json,dist,public,node_modules,.next} "$pkgdir/usr/lib/jellyseerr/"
+  cp -a .next dist public node_modules "$app_dir"/
+  cp ./package.json ./jellyseerr-api.yml ./next.config.js "$app_dir/"
+  rm -rf "$app_dir/.next/cache"
+
   echo "{\"commitTag\":\"v$pkgver\"}" > "$pkgdir/usr/lib/jellyseerr/committag.json"
 
   #wrapper
@@ -49,12 +63,12 @@ EOF
 
   chmod +x "$pkgdir/usr/bin/jellyseerr"
 
+  #rm -rf "$app_dir/config"
+	#ln -s /var/lib/$pkgname "$app_dir/config"
+
   install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
   install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
-
-  ln -s /var/lib/jellyseerr "$pkgdir/usr/lib/jellyseerr/config"
 }
-
 
 sha512sums="
 SKIP

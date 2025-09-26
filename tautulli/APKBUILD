@@ -22,16 +22,12 @@ pkgusers="tautulli"
 pkggroups="tautulli"
 options="!check"
 
-build() {
-	true
-}
-
 package() {
     install -dm755 "$pkgdir/usr/lib/tautulli"
     install -dm755 "$pkgdir/usr/bin"
     install -dm755 "$pkgdir/var/lib/tautulli"
-	install -dm755 "$pkgdir/var/log/tautulli"
-	install -dm755 "$pkgdir/etc/tautulli"
+  	install -dm755 "$pkgdir/var/log/tautulli"
+	  install -dm755 "$pkgdir/etc/tautulli"
 
     cp -a "$builddir"/. "$pkgdir/usr/lib/tautulli/"
 
