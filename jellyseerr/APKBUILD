@@ -22,15 +22,26 @@ prepare() {
 	cd "$builddir"
 
 	sed -i 's/"husky install"/"echo husky ignored"/' package.json
-	sed -i '/"engines": {/,/},/d' package.json
+	sed -i 's/"node": "[^"]*"/"node": "^24.0.0"/' package.json
+  sed -i 's/"pnpm": "[^"]*"/"pnpm": "^10.0.0"/' package.json
+
+  # add allowed postinstall list
+  sed -i '/"overrides": {/i\
+  "pnpm": {\n\
+    "onlyBuiltDependencies": [\n\
+      "@swc/core",\n\
+      "bcrypt",\n\
+      "sharp",\n\
+      "sqlite3"\n\
+    ]\n\
+  },' package.json
 
 	export NEXT_TELEMETRY_DISABLED=1
 	export CYPRESS_INSTALL_BINARY=0
   export SHARP_IGNORE_GLOBAL_LIBVIPS=1
-
-  export PNPM_ALLOW_SCRIPTS="@swc/core bcrypt sharp sqlite3"
   export npm_config_target_libc=musl
 
+  pnpm approve-builds 
 	pnpm install --frozen-lockfile
 }
 
