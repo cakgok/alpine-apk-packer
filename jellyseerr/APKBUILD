@@ -5,8 +5,8 @@ pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/Fallenbagel/jellyseerr"
 arch="x86_64"
 license="MIT"
-depends="nodejs npm sqlite-libs vips"
-makedepends="nodejs npm python3 make g++ pkgconfig vips-dev"
+depends="nodejs npm sqlite-libs"
+makedepends="nodejs npm python3 make g++ pkgconfig pnpm"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
@@ -21,13 +21,14 @@ prepare() {
 	default_prepare
 	cd "$builddir"
 
-  export npm_config_prefix="$builddir/.npm-global"
-  npm install -g pnpm@9
-  export PATH="$builddir/.npm-global/bin:$PATH"
-  export NEXT_TELEMETRY_DISABLED=1
-  export CYPRESS_INSTALL_BINARY=0
+	export NEXT_TELEMETRY_DISABLED=1
+	export CYPRESS_INSTALL_BINARY=0
+  export SHARP_IGNORE_GLOBAL_LIBVIPS=1
 
-  pnpm install --frozen-lockfile
+  export PNPM_ALLOW_SCRIPTS="@swc/core bcrypt sharp sqlite3"
+  export npm_config_target_libc=musl
+
+	pnpm install --frozen-lockfile
 }
 
 build() {
@@ -35,7 +36,8 @@ build() {
 
 	export NEXT_TELEMETRY_DISABLED=1
 	export CYPRESS_INSTALL_BINARY=0
-
+  export SHARP_IGNORE_GLOBAL_LIBVIPS=1
+  
   export PNPM_ALLOW_SCRIPTS="@swc/core bcrypt sharp sqlite3"
   export npm_config_target_libc=musl
 
