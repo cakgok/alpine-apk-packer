@@ -1,12 +1,12 @@
 pkgname=jellyseerr
-pkgver=2.7.3
+pkgver=1.7.0
 pkgrel=0
 pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/Fallenbagel/jellyseerr"
 arch="x86_64"
 license="MIT"
-depends="nodejs vips"
-makedepends="nodejs npm curl vips vips-dev"
+depends="nodejs"
+makedepends="nodejs npm curl vips vips-dev pnpm"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
@@ -22,13 +22,12 @@ prepare() {
 	cd "$builddir"
 
 	sed -i 's/husky install//' package.json || true
-
+	sed -i '/"engines": {/,/},/d' package.json
+  
   export NEXT_TELEMETRY_DISABLED=1
 	export CYPRESS_INSTALL_BINARY=0
 	
-  corepack enable
-  corepack prepare pnpm@9 --activate
-  pnpm install --frozen-lockfile
+	pnpm install --frozen-lockfile
 }
 
 build() {
@@ -36,13 +35,10 @@ build() {
 
 	export NEXT_TELEMETRY_DISABLED=1
 	export CYPRESS_INSTALL_BINARY=0
-  export COREPACK_ENABLE_STRICT=0
-  
-  corepack enable
-  corepack prepare pnpm@9 --activate
-  pnpm build
-  pnpm prune --prod --ignore-scripts
-  pnpm cache delete
+
+	pnpm build
+	pnpm prune --prod --ignore-scripts
+	pnpm cache delete
 }
 
 package() {
@@ -68,15 +64,12 @@ EOF
 
   chmod +x "$pkgdir/usr/bin/jellyseerr"
 
-  #rm -rf "$app_dir/config"
-	#ln -s /var/lib/$pkgname "$app_dir/config"
-
   install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
   install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 }
 
 sha512sums="
-88599a9ae20a54403f8082e115dd513b66466ec4a064f198316e5659dc00b2c5445381453cfa5f59edb48f046a07e7851d84cfe4501c9ce42cce5d91ae2de395  jellyseerr-2.7.3.tar.gz
-5fc8c8d53fb6586093bb2339acc2e54d73163f663ffda17f3aa1082b7db6f7a6c7905fe9c0daaea7534918b10e99713e21748164bdf324f97fcaba793bee3bf1  jellyseerr.initd
-9d5ebc45d18268bcec2d0ec48b9d86538f236d2ff8845b081691176cd0689bf6b521e244b0ce27fc3aefd569bfc7c2d4b8827d7cc4043bd9ffe8660d3bdce061  jellyseerr.confd
+SKIP
+SKIP
+SKIP
 "
