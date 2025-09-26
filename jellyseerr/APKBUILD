@@ -64,7 +64,8 @@ package() {
   rm -rf "$app_dir/.next/cache"
 
   export PATH="$builddir/.npm-global/bin:$PATH"
-  cd "$app_dir" && pnpm prune --pro
+  export PNPM_CONFIG_IGNORE_SCRIPTS=true
+  cd "$app_dir" && pnpm prune --pro --ignore-scripts
 
   echo "{\"commitTag\":\"v$pkgver\"}" > "$pkgdir/usr/lib/jellyseerr/committag.json"
 
