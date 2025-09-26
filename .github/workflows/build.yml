@@ -128,6 +128,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VERSION_TAG:  ${{ env.APP }}-v${{ needs.detect-updates.outputs.new_version }}
         LATEST_TAG:   ${{ env.APP }}-latest
+        GH_PAT: ${{ secrets.GH_PAT }} 
       run: |
         set -euo pipefail
         git fetch --tags --force
