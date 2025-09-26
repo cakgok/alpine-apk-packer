@@ -6,7 +6,7 @@ url="https://github.com/Fallenbagel/jellyseerr"
 arch="x86_64"
 license="MIT"
 depends="nodejs npm sqlite-libs libc6-compat libgcc libstdc++ musl-utils gcompat"
-makedepends="nodejs npm python3 make g++ pkgconfig pnpm"
+makedepends="nodejs npm python3 make g++ pkgconfig gcompat"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
@@ -22,28 +22,15 @@ prepare() {
 	cd "$builddir"
 
 	sed -i 's/"husky install"/"echo husky ignored"/' package.json
-	sed -i 's/"node": "[^"]*"/"node": "^22.0.0"/' package.json
-  sed -i 's/"pnpm": "[^"]*"/"pnpm": "^10.0.0"/' package.json
-
-  # add allowed postinstall list
-  sed -i '/"overrides": {/i\
-  "pnpm": {\n\
-    "onlyBuiltDependencies": [\n\
-      "@swc/core",\n\
-      "bcrypt",\n\
-      "sharp",\n\
-      "sqlite3"\n\
-    ]\n\
-  },' package.json
+	sed -i '/"engines": {/,/},/d' package.json
 
 	export NEXT_TELEMETRY_DISABLED=1
 	export CYPRESS_INSTALL_BINARY=0
   export SHARP_IGNORE_GLOBAL_LIBVIPS=1
-  export npm_config_target_libc=musl
 
-  pnpm approve-builds 
-	pnpm install --frozen-lockfile
+	npx pnpm@9 install --frozen-lockfile
 }
+
 
 build() {
     cd "$builddir"
@@ -51,14 +38,11 @@ build() {
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0
     export SHARP_IGNORE_GLOBAL_LIBVIPS=1
-    export npm_config_target_libc=musl
-    export npm_config_target_platform=linux
-    export npm_config_target_arch=x64
     
-    pnpm rebuild
-    pnpm build
-    pnpm cache delete
+    npx pnpm@9 build
+    npx pnpm@9 cache delete
 }
+
 
 package() {
 	local app_dir="$pkgdir/usr/lib/$pkgname"
@@ -70,7 +54,9 @@ package() {
 
   cp -a .next dist public node_modules "$app_dir"/
   cp ./package.json ./jellyseerr-api.yml ./next.config.js "$app_dir/"
+
   rm -rf "$app_dir/.next/cache"
+  cd "$app_dir" && npx pnpm@9 prune --prod
 
   echo "{\"commitTag\":\"v$pkgver\"}" > "$pkgdir/usr/lib/jellyseerr/committag.json"
 
