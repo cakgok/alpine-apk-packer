@@ -1,5 +1,5 @@
 pkgname=jellyseerr
-pkgver=1.7.0
+pkgver=2.7.3
 pkgrel=0
 pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/Fallenbagel/jellyseerr"
@@ -70,7 +70,7 @@ EOF
 }
 
 sha512sums="
-SKIP
-SKIP
-SKIP
+88599a9ae20a54403f8082e115dd513b66466ec4a064f198316e5659dc00b2c5445381453cfa5f59edb48f046a07e7851d84cfe4501c9ce42cce5d91ae2de395  jellyseerr-2.7.3.tar.gz
+5fc8c8d53fb6586093bb2339acc2e54d73163f663ffda17f3aa1082b7db6f7a6c7905fe9c0daaea7534918b10e99713e21748164bdf324f97fcaba793bee3bf1  jellyseerr.initd
+9d5ebc45d18268bcec2d0ec48b9d86538f236d2ff8845b081691176cd0689bf6b521e244b0ce27fc3aefd569bfc7c2d4b8827d7cc4043bd9ffe8660d3bdce061  jellyseerr.confd
 "
