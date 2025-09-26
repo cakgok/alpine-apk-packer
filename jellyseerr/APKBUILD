@@ -5,8 +5,8 @@ pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/Fallenbagel/jellyseerr"
 arch="x86_64"
 license="MIT"
-depends="nodejs"
-makedepends="nodejs npm curl vips vips-dev pnpm"
+depends="nodejs npm sqlite-libs vips"
+makedepends="nodejs npm python3 make g++ pkgconfig vips-dev"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
@@ -15,19 +15,18 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archi
        
 pkgusers="jellyseerr"
 pkggroups="jellyseerr"
-options="!check net"
+options="!check"
 
 prepare() {
 	default_prepare
 	cd "$builddir"
 
-	sed -i 's/husky install//' package.json || true
-	sed -i '/"engines": {/,/},/d' package.json
-  
+  npm install -g pnpm@9
+
   export NEXT_TELEMETRY_DISABLED=1
-	export CYPRESS_INSTALL_BINARY=0
-	
-	pnpm install --frozen-lockfile
+  export CYPRESS_INSTALL_BINARY=0
+
+  pnpm install --frozen-lockfile
 }
 
 build() {
@@ -36,8 +35,10 @@ build() {
 	export NEXT_TELEMETRY_DISABLED=1
 	export CYPRESS_INSTALL_BINARY=0
 
+  export PNPM_ALLOW_SCRIPTS="@swc/core bcrypt sharp sqlite3"
+  export npm_config_target_libc=musl
+
 	pnpm build
-	pnpm prune --prod --ignore-scripts
 	pnpm cache delete
 }
 
