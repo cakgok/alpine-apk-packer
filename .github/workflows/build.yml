@@ -123,6 +123,26 @@ jobs:
           Built automatically from upstream release:  
           https://github.com/${{ env.UPSTREAM }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}  
 
+    - name: Create or update latest release
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      with:
+        tag_name:  ${{env.APP}}-latest
+        name:      ${{env.APP}}-latest (Alpine x86_64)
+        draft:     false
+        prerelease: false
+        files:     artifacts/*.apk
+        make_latest: false
+        body: |
+          Latest build of ${{env.APP}}
+          
+          This release is automatically updated to point to the newest version.
+          Current version: v${{ needs.detect-updates.outputs.new_version }}
+          
+          Built from upstream release:  
+          https://github.com/${{ env.UPSTREAM }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}
+
     - name: Move <APP>-latest to this version
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
