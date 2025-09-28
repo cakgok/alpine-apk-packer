@@ -10,7 +10,6 @@ jobs:
   publish-repository:
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    container: alpine:latest
     permissions:
       contents: write 
       pages: write
@@ -18,12 +17,8 @@ jobs:
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-    - name: Install abuild + apk-tools
-      run: apk add --no-cache alpine-sdk apk-tools openssl tar gzip git gh jq bash abuild
-
     - name: Checkout main branch (for scripts)
       uses: actions/checkout@v4
       with:
@@ -40,11 +35,22 @@ jobs:
       env:
         PACKAGER_PRIVKEY: ${{ secrets.PACKAGER_PRIVKEY }}
         KEY_NAME:         ${{ secrets.KEY_NAME }}
-        GH_TOKEN:         ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_SERVER_URL: ${{ github.server_url }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
       run: |
-        cd main
-        ./scripts/publish-repo.sh ../gh-pages
- 
+        docker run --rm \
+          -v "$(pwd)/main:/main" \
+          -v "$(pwd)/gh-pages:/gh-pages" \
+          -w "/main" \
+          -e PACKAGER_PRIVKEY \
+          -e KEY_NAME \
+          -e GITHUB_SERVER_URL \
+          -e GITHUB_REPOSITORY \
+          alpine:latest sh -c "\
+            apk add --no-cache alpine-sdk && \
+            ./scripts/publish-repo.sh ../gh-pages \
+          "
+
     - name: Commit & push
       run: |
         cd gh-pages
