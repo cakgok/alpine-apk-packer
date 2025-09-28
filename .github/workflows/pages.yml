@@ -43,6 +43,7 @@ jobs:
         GH_TOKEN:         ${{ secrets.GITHUB_TOKEN }}
       run: |
         cd main
+        chmod +x scripts/publish-repo.sh
         ./scripts/publish-repo.sh ../gh-pages
  
     - name: Commit & push
