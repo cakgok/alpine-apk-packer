@@ -71,6 +71,9 @@ else
     openssl rsa -in ~/.abuild/"$KEY_NAME" -pubout -out "$REPO_DIR/${KEY_NAME}.pub"
     echo "Public key created at '$REPO_DIR/${KEY_NAME}.pub'."
 
+    mkdir -p /etc/apk/keys/
+    cp "$REPO_DIR/${KEY_NAME}.pub" /etc/apk/keys/
+
     # Generate and sign the index
     cd "$ARCH_DIR"
     apk index -o APKINDEX.tar.gz *.apk    
