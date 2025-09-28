@@ -3,7 +3,7 @@ set -eo pipefail
 
 APPS=("bazarr" "stashapp" "tautulli")
 EXISTING_REPO_DIR="gh-pages"
-REPO_DIR="gh-pages"
+REPO_DIR="${1:-gh-pages}"
 ARCH_DIR="$REPO_DIR/main/x86_64"
 
 export GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
@@ -17,12 +17,12 @@ mkdir -p "$ARCH_DIR"
 NEEDS_REINDEX=false
 
 get_release() {
-  local tag=$1
-  curl -sfL "${HDR[@]}" "$API/repos/$OWNER/$REPO/releases/tags/$tag"
+    local tag=$1
+    curl -sfL "${HDR[@]}" "$API/repos/$OWNER/$REPO/releases/tags/$tag"
 }
 
 get_apk_asset() {
-  jq -r '
+jq -r '
     .assets[]
     | select(.name | endswith(".apk"))
     | "\(.name)|\(.browser_download_url)"
@@ -30,31 +30,31 @@ get_apk_asset() {
 }
 
 for APP in "${APPS[@]}"; do
-  echo "--- $APP ---"
-  LATEST="${APP}-latest"
+    echo "--- $APP ---"
+    LATEST="${APP}-latest"
 
-  rel_json=$(get_release "$LATEST" || true)
-  if [[ -z $rel_json ]]; then
-    echo "⚠️  no release $LATEST"
-    continue
-  fi
+    rel_json=$(get_release "$LATEST" || true)
+    if [[ -z $rel_json ]]; then
+        echo "⚠️  no release $LATEST"
+        continue
+    fi
 
-  VERSION_TAG=$(jq -r '.tag_name' <<<"$rel_json")
-  echo "  ↳ resolved to $VERSION_TAG"
+    VERSION_TAG=$(jq -r '.tag_name' <<<"$rel_json")
+    echo "  ↳ resolved to $VERSION_TAG"
 
-  IFS='|' read -r APK_NAME APK_URL <<<"$(get_apk_asset "$rel_json")"
-  if [[ -z $APK_NAME ]]; then
-    echo "⚠️  no *.apk asset"
-    continue
-  fi
+    IFS='|' read -r APK_NAME APK_URL <<<"$(get_apk_asset "$rel_json")"
+    if [[ -z $APK_NAME ]]; then
+        echo "⚠️  no *.apk asset"
+        continue
+    fi
 
-  if [[ -f "$ARCH_DIR/$APK_NAME" ]]; then
-    echo "✅  up-to-date"
-  else
-    echo "⬇️  downloading $APK_NAME"
-    curl -sfL -o "$ARCH_DIR/$APK_NAME" "$APK_URL"
-    NEEDS_REINDEX=true
-  fi
+    if [[ -f "$ARCH_DIR/$APK_NAME" ]]; then
+        echo "✅  up-to-date"
+    else
+        echo "⬇️  downloading $APK_NAME"
+        curl -sfL -o "$ARCH_DIR/$APK_NAME" "$APK_URL"
+        NEEDS_REINDEX=true
+    fi
 done
 
 # Regenerate index if needed
