@@ -19,6 +19,9 @@ jobs:
       name: github-pages
 
     steps:
+    - name: Install abuild + apk-tools
+      run: apk add --no-cache alpine-sdk apk-tools openssl tar gzip git curl jq bash abuild
+
     - name: Checkout main branch (for scripts)
       uses: actions/checkout@v4
       with:
@@ -33,25 +36,16 @@ jobs:
         
     - name: Publish repository
       env:
+        GH_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
         PACKAGER_PRIVKEY: ${{ secrets.PACKAGER_PRIVKEY }}
         KEY_NAME:         ${{ secrets.KEY_NAME }}
         GITHUB_SERVER_URL: ${{ github.server_url }}
         GITHUB_REPOSITORY: ${{ github.repository }}
       run: |
-        docker run --rm \
-          -v "$(pwd)/main:/main" \
-          -v "$(pwd)/gh-pages:/gh-pages" \
-          -w "/main" \
-          -e PACKAGER_PRIVKEY \
-          -e KEY_NAME \
-          -e GITHUB_SERVER_URL \
-          -e GITHUB_REPOSITORY \
-          alpine:latest sh -c "\
-            apk add --no-cache alpine-sdk && \
-            chmod +x scripts/publish-repo.sh
-        ./scripts/publish-repo.sh ../gh-pages \
-          "
-
+        cd main
+        chmod +x ./scripts/publish-repo.sh
+        ./scripts/publish-repo.sh ../gh-pages
+ 
     - name: Commit & push
       run: |
         cd gh-pages

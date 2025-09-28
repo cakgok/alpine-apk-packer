@@ -6,34 +6,55 @@ EXISTING_REPO_DIR="gh-pages"
 REPO_DIR="gh-pages"
 ARCH_DIR="$REPO_DIR/main/x86_64"
 
+export GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+export API="https://api.github.com"
+export OWNER="$(cut -d/ -f1 <<<"$GITHUB_REPOSITORY")"
+export REPO="$(cut -d/ -f2- <<<"$GITHUB_REPOSITORY")"
+HDR=("-H" "Accept: application/vnd.github+json")
+[[ -n $GH_TOKEN ]] && HDR+=("-H" "Authorization: Bearer $GH_TOKEN")
+
 mkdir -p "$ARCH_DIR"
 NEEDS_REINDEX=false
 
+get_release() {
+  local tag=$1
+  curl -sfL "${HDR[@]}" "$API/repos/$OWNER/$REPO/releases/tags/$tag"
+}
+
+get_apk_asset() {
+  jq -r '
+    .assets[]
+    | select(.name | endswith(".apk"))
+    | "\(.name)|\(.browser_download_url)"
+    ' <<<"$1" | head -n1
+}
+
 for APP in "${APPS[@]}"; do
-    echo "--- Processing app: $APP ---"
-    LATEST_TAG="${APP}-latest"
-    VERSION_TAG=$(gh release view "$LATEST_TAG" --json tagName --jq '.tagName')
-    if [ -z "$VERSION_TAG" ]; then
-        echo "⚠️ Could not find release for tag '$LATEST_TAG'. Skipping."
-        continue
-    fi
+  echo "--- $APP ---"
+  LATEST="${APP}-latest"
 
-    echo "Resolved '$LATEST_TAG' to '$VERSION_TAG'"
+  rel_json=$(get_release "$LATEST" || true)
+  if [[ -z $rel_json ]]; then
+    echo "⚠️  no release $LATEST"
+    continue
+  fi
 
-    APK_ASSET_NAME=$(gh release view "$VERSION_TAG" --json 'assets.[].name' --jq '.assets[] | select(endswith(".apk"))')
-    if [ -z "$APK_ASSET_NAME" ]; then
-        echo "⚠️ Could not find .apk asset in release '$VERSION_TAG'. Skipping."
-        continue
-    fi
+  VERSION_TAG=$(jq -r '.tag_name' <<<"$rel_json")
+  echo "  ↳ resolved to $VERSION_TAG"
 
-    if [ -f "$ARCH_DIR/$APK_ASSET_NAME" ]; then
-        echo "✅ '$APK_ASSET_NAME' is already up-to-date in the repository. Skipping download."
-    else
-        echo "🔄 New version detected: '$APK_ASSET_NAME'. Downloading..."
-        gh release download "$VERSION_TAG" --pattern "*.apk" --output "$ARCH_DIR/$APK_ASSET_NAME"
-        echo "Download complete."
-        NEEDS_REINDEX=true
-    fi
+  IFS='|' read -r APK_NAME APK_URL <<<"$(get_apk_asset "$rel_json")"
+  if [[ -z $APK_NAME ]]; then
+    echo "⚠️  no *.apk asset"
+    continue
+  fi
+
+  if [[ -f "$ARCH_DIR/$APK_NAME" ]]; then
+    echo "✅  up-to-date"
+  else
+    echo "⬇️  downloading $APK_NAME"
+    curl -sfL -o "$ARCH_DIR/$APK_NAME" "$APK_URL"
+    NEEDS_REINDEX=true
+  fi
 done
 
 # Regenerate index if needed
