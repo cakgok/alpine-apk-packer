@@ -1,0 +1,55 @@
+# .github/workflows/pages.yml
+name: Publish Repository
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build All"]
+    types: [completed]
+
+jobs:
+  publish-repository:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    permissions:
+      contents: write 
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+    - name: Install abuild + apk-tools
+      run: apk add --no-cache alpine-sdk apk-tools openssl tar gzip
+
+    - name: Checkout main branch (for scripts)
+      uses: actions/checkout@v4
+      with:
+        path: main
+
+    - name: Checkout gh-pages branch (for existing repo)
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: gh-pages
+        token: ${{ secrets.GH_PAT }}
+        
+    - name: Publish repository
+      env:
+        PACKAGER_PRIVKEY: ${{ secrets.PACKAGER_PRIVKEY }}
+        KEY_NAME:         ${{ secrets.KEY_NAME }}
+        GH_TOKEN:         ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        cd main
+        ./scripts/publish-repo.sh ../gh-pages
+ 
+    - name: Commit & push
+      run: |
+        cd gh-pages
+        git config user.name  "github-actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        git add .
+        git commit -m "repo update $(date -u +%F)" || echo "nothing to commit"
+        git push   # pushes *gh-pages*, history intact
