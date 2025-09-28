@@ -17,8 +17,19 @@ mkdir -p "$ARCH_DIR"
 NEEDS_REINDEX=false
 
 get_release() {
-    local tag=$1
-    curl -sfL "${HDR[@]}" "$API/repos/$OWNER/$REPO/releases/tags/$tag"
+  local tag=$1  sha type
+
+  # resolve the lightweight tag to its object
+  local ref
+  ref=$(curl -sfL "${HDR[@]}" \
+        "$API/repos/$OWNER/$REPO/git/ref/tags/$tag") || return 1
+  sha=$(jq -r '.object.sha'  <<<"$ref")
+  type=$(jq -r '.object.type' <<<"$ref")
+
+  curl -sfL "${HDR[@]}" \
+       "$API/repos/$OWNER/$REPO/releases?per_page=100" |
+    jq --arg sha "$sha" '
+        map(select(.target_commitish == $sha))[0] // empty'
 }
 
 get_apk_asset() {
