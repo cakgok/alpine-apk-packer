@@ -48,7 +48,8 @@ jobs:
           -e GITHUB_REPOSITORY \
           alpine:latest sh -c "\
             apk add --no-cache alpine-sdk && \
-            ./scripts/publish-repo.sh ../gh-pages \
+            chmod +x scripts/publish-repo.sh
+        ./scripts/publish-repo.sh ../gh-pages \
           "
 
     - name: Commit & push
