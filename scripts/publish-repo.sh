@@ -26,7 +26,7 @@ jq -r '
     .assets[]
     | select(.name | endswith(".apk"))
     | "\(.name)|\(.browser_download_url)"
-    ' <<<"$1" | head -n1
+    ' <<<"$1"
 }
 
 for APP in "${APPS[@]}"; do
@@ -42,12 +42,20 @@ for APP in "${APPS[@]}"; do
     VERSION_TAG=$(jq -r '.tag_name' <<<"$rel_json")
     echo "  ↳ resolved to $VERSION_TAG"
 
-    IFS='|' read -r APK_NAME APK_URL <<<"$(get_apk_asset "$rel_json")"
-    if [[ -z $APK_NAME ]]; then
-        echo "⚠️  no *.apk asset"
-        continue
-    fi
-
+    while IFS='|' read -r APK_NAME APK_URL; do
+        if [[ -z $APK_NAME ]]; then
+            continue
+        fi
+        
+        if [[ -f "$ARCH_DIR/$APK_NAME" ]]; then
+            echo "  ✅  $APK_NAME up-to-date"
+        else
+            echo "  ⬇️  downloading $APK_NAME"
+            curl -sfL -o "$ARCH_DIR/$APK_NAME" "$APK_URL"
+            NEEDS_REINDEX=true
+        fi
+    done < <(get_apk_asset "$rel_json")
+    
     if [[ -f "$ARCH_DIR/$APK_NAME" ]]; then
         echo "✅  up-to-date"
     else
@@ -87,35 +95,7 @@ echo "Generating repository browser..."
 touch "$REPO_DIR/.nojekyll"
 
 # Generate the structure JSON
-export REPO_DIR
-python3 > "$REPO_DIR/structure.json" <<'PYEOF'
-import os
-import json
-
-def scan_directory(path, base):
-    result = {}
-    try:
-        for item in sorted(os.listdir(path)):
-            if item.startswith('.') or item in ['index.html', 'browser.js', 'structure.json']:
-                continue
-            full_path = os.path.join(path, item)
-            
-            if os.path.isdir(full_path):
-                result[item] = scan_directory(full_path, base)
-            else:
-                size = os.path.getsize(full_path)
-                ext = item.split('.')[-1] if '.' in item else 'file'
-                if item.endswith('.tar.gz'):
-                    ext = 'tar.gz'
-                result[item] = {'type': ext, 'size': size}
-    except PermissionError:
-        pass
-    return result
-
-base = os.environ.get('REPO_DIR', 'gh-pages')
-structure = scan_directory(base, base)
-print(json.dumps(structure, indent=2))
-PYEOF
+python3 main/scripts/repo-browser/generate_structure.py "$REPO_DIR" > "$REPO_DIR/structure.json"
 
 # Copy static HTML and JS from your repo
 cp main/scripts/repo-browser/index.html "$REPO_DIR/"

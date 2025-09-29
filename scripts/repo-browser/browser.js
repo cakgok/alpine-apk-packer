@@ -29,7 +29,8 @@ function getIcon(type) {
         apk: '📦',
         'tar.gz': '🗜️',
         pub: '🔑',
-        html: '📄'
+        html: '📄',
+        openrc: '⚙️'
     };
     return icons[type] || '📄';
 }
