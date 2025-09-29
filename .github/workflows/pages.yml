@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Install abuild + apk-tools
-      run: apk add --no-cache alpine-sdk apk-tools openssl tar gzip git curl jq bash abuild
+      run: apk add --no-cache alpine-sdk apk-tools openssl tar gzip git curl jq bash abuild python3
 
     - name: Checkout main branch (for scripts)
       uses: actions/checkout@v4
