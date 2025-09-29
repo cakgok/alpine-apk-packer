@@ -47,6 +47,9 @@ jobs:
     if: needs.detect-updates.outputs.has_updates == 'true'
     runs-on: ubuntu-latest
 
+    outputs:
+      new_sha: ${{ steps.get_sha.outputs.sha }}
+
     permissions:
       contents: write
 
@@ -60,6 +63,10 @@ jobs:
       run: bash ./scripts/update-apkbuild.sh "${{env.APP}}" "${{ needs.detect-updates.outputs.new_version }}"
     - name: Commit & tag
       run: bash ./scripts/commit-and-tag.sh "${{env.APP}}" "${{ needs.detect-updates.outputs.new_version }}"
+
+    - name: Capture new SHA
+      id: get_sha
+      run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
   
   build-apk:
     needs: [detect-updates, update-apkbuild]
@@ -70,7 +77,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ github.ref }}
+        ref: ${{ needs.update-apkbuild.result == 'success' && needs.update-apkbuild.outputs.new_sha || github.ref }}        
         fetch-depth: 0
 
     - name: Build APK 
