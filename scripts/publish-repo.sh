@@ -83,31 +83,47 @@ else
     echo "Repository index has been regenerated and signed."
 fi
 
-echo "Generating index.html..."
-cat > "$REPO_DIR/index.html" <<- EOM
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Alpine Repository</title>
-    <style>body { font-family: sans-serif; padding: 2em; } code { background: #eee; padding: 3px; }</style>
-</head>
-<body>
-    <h1>Alpine Package Repository</h1>
-    <p>To use this repository, add the public key and then add the repository URL to your system.</p>
-    <pre><code># Download and install the public key
-wget -O /etc/apk/keys/${KEY_NAME}.pub ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/keys/${KEY_NAME}.pub
+echo "Generating repository browser..."
+touch "$REPO_DIR/.nojekyll"
 
-# Add the repository
-echo "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" >> /etc/apk/repositories
+# Generate the structure JSON
+export REPO_DIR
+python3 > "$REPO_DIR/structure.json" <<'PYEOF'
+import os
+import json
 
-# Update the index
-apk update</code></pre>
-    <h2>Available Packages</h2>
-    <ul>
-$(cd "$ARCH_DIR" && ls -1 *.apk | sed 's/^/<li>/g' | sed 's/$/<\/li>/g')
-    </ul>
-</body>
-</html>
-EOM
+def scan_directory(path, base):
+    result = {}
+    try:
+        for item in sorted(os.listdir(path)):
+            if item.startswith('.') or item in ['index.html', 'browser.js', 'structure.json']:
+                continue
+            full_path = os.path.join(path, item)
+            
+            if os.path.isdir(full_path):
+                result[item] = scan_directory(full_path, base)
+            else:
+                size = os.path.getsize(full_path)
+                ext = item.split('.')[-1] if '.' in item else 'file'
+                if item.endswith('.tar.gz'):
+                    ext = 'tar.gz'
+                result[item] = {'type': ext, 'size': size}
+    except PermissionError:
+        pass
+    return result
+
+base = os.environ.get('REPO_DIR', 'gh-pages')
+structure = scan_directory(base, base)
+print(json.dumps(structure, indent=2))
+PYEOF
+
+# Copy static HTML and JS from your repo
+cp main/scripts/repo-browser/index.html "$REPO_DIR/"
+cp main/scripts/repo-browser/browser.js "$REPO_DIR/"
+
+# Substitute variables in index.html
+sed -i "s|{{KEY_NAME}}|$KEY_NAME|g" "$REPO_DIR/index.html"
+sed -i "s|{{GITHUB_SERVER_URL}}|$GITHUB_SERVER_URL|g" "$REPO_DIR/index.html"
+sed -i "s|{{GITHUB_REPOSITORY}}|$GITHUB_REPOSITORY|g" "$REPO_DIR/index.html"
 
 echo "✅ Process complete. Repository is ready for deployment in '$REPO_DIR'."
