@@ -43,10 +43,9 @@ for APP in "${APPS[@]}"; do
     echo "  ↳ resolved to $VERSION_TAG"
 
     while IFS='|' read -r APK_NAME APK_URL; do
-        if [[ -z $APK_NAME ]]; then
-            continue
-        fi
+        [[ -z $APK_NAME || -z $APK_URL ]] && continue
         
+        APK_FOUND=true
         if [[ -f "$ARCH_DIR/$APK_NAME" ]]; then
             echo "  ✅  $APK_NAME up-to-date"
         else
@@ -55,13 +54,9 @@ for APP in "${APPS[@]}"; do
             NEEDS_REINDEX=true
         fi
     done < <(get_apk_asset "$rel_json")
-    
-    if [[ -f "$ARCH_DIR/$APK_NAME" ]]; then
-        echo "✅  up-to-date"
-    else
-        echo "⬇️  downloading $APK_NAME"
-        curl -sfL -o "$ARCH_DIR/$APK_NAME" "$APK_URL"
-        NEEDS_REINDEX=true
+
+    if [[ "$APK_FOUND" = "false" ]]; then
+        echo "⚠️  no *.apk assets found"
     fi
 done
 
