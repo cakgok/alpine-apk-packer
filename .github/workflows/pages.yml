@@ -44,12 +44,16 @@ jobs:
         GITHUB_REPOSITORY: ${{ github.repository }}
       run: |
         chmod +x main/scripts/publish-repo.sh
-        main/scripts/publish-repo.sh gh-pages      
+        main/scripts/publish-repo.sh gh-pages
+
     - name: Commit & push
       run: |
         cd gh-pages
         git config user.name  "github-actions"
         git config user.email "github-actions@users.noreply.github.com"
+        git checkout --orphan temp-branch
         git add .
-        git commit -m "repo update $(date -u +%F)" || echo "nothing to commit"
-        git push   # pushes *gh-pages*, history intact
+        git commit -m "repo update $(date -u +%F)"
+        git branch -D gh-pages || true
+        git branch -m gh-pages
+        git push --force origin gh-pages
