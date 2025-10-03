@@ -98,7 +98,7 @@ cp main/scripts/repo-browser/browser.js "$REPO_DIR/"
 
 # Substitute variables in index.html
 sed -i "s|{{KEY_NAME}}|$KEY_NAME|g" "$REPO_DIR/index.html"
-sed -i "s|{{GITHUB_SERVER_URL}}|$GITHUB_SERVER_URL|g" "$REPO_DIR/index.html"
-sed -i "s|{{GITHUB_REPOSITORY}}|$GITHUB_REPOSITORY|g" "$REPO_DIR/index.html"
+sed -i "s|{{OWNER}}|$OWNER|g" "$REPO_DIR/index.html"
+sed -i "s|{{REPO}}|$REPO|g" "$REPO_DIR/index.html"
 
 echo "✅ Process complete. Repository is ready for deployment in '$REPO_DIR'."

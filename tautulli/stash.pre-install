@@ -1,0 +1,4 @@
+#!/bin/sh
+addgroup  -S tautulli 2>/dev/null
+adduser   -S -D -H -h /var/lib/tautulli -s /sbin/nologin -G tautulli tautulli 2>/dev/null
+exit 0

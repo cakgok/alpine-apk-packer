@@ -113,14 +113,13 @@
         <div class="setup-section">
             <h2>🔧 Setup Instructions</h2>
             <pre><code># Download and install the public key
-                wget -O /etc/apk/keys/{{KEY_NAME}}.pub \
-                     {{GITHUB_SERVER_URL}}/{{GITHUB_REPOSITORY}}/{{KEY_NAME}}.pub
-                
-                # Add the repository
-                echo "{{GITHUB_SERVER_URL}}/{{GITHUB_REPOSITORY}}/main" >> /etc/apk/repositories
-                
-                # Update the index
-                apk update</code></pre>
+wget -O /etc/apk/keys/{{KEY_NAME}}.pub https://{{OWNER}}.github.io/{{REPO}}/{{KEY_NAME}}.pub
+
+# Add the repository
+echo "https://{{OWNER}}.github.io/{{REPO}}/main" >> /etc/apk/repositories
+
+# Update the index
+apk update</code></pre>
         </div>
         <div class="browser">
             <div class="breadcrumb" id="breadcrumb"></div>

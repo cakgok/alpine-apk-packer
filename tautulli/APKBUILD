@@ -18,6 +18,8 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/Tautulli/Tautulli/archive/v$
 	tautulli.initd
 	tautulli.confd
 	"
+  
+install="$pkgname.pre-install"
 pkgusers="tautulli"
 pkggroups="tautulli"
 options="!check"
