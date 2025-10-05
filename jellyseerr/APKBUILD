@@ -33,8 +33,8 @@ build() {
 
 package() {
 	local app_dir="$pkgdir/usr/lib/$pkgname"
-  cd "$builddir/$pkgname-$pkgver"
-
+  cd "$builddir"
+  
   install -dm755 "$pkgdir/usr/lib/jellyseerr"
   install -dm755 "$pkgdir/usr/bin"
   install -dm755 "$pkgdir/var/lib/jellyseerr"
@@ -42,7 +42,7 @@ package() {
 
   export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
   pnpm prune --prod
-  
+
   cp -a .next dist public node_modules "$app_dir"/
   cp ./package.json ./jellyseerr-api.yml ./next.config.js "$app_dir/"
 
