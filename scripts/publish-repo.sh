@@ -5,6 +5,8 @@ APPS=("bazarr" "stashapp" "tautulli")
 EXISTING_REPO_DIR="gh-pages"
 REPO_DIR="${1:-gh-pages}"
 ARCH_DIR="$REPO_DIR/main/x86_64"
+FORCE_REINDEX="${FORCE_REINDEX:-false}"
+NEEDS_REINDEX="false"
 
 export GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
 export API="https://api.github.com"
@@ -14,7 +16,6 @@ HDR=("-H" "Accept: application/vnd.github+json")
 [[ -n $GH_TOKEN ]] && HDR+=("-H" "Authorization: Bearer $GH_TOKEN")
 
 mkdir -p "$ARCH_DIR"
-NEEDS_REINDEX="${NEEDS_REINDEX:-false}"
 
 get_release() {
     local tag=$1
@@ -46,7 +47,7 @@ for APP in "${APPS[@]}"; do
         [[ -z $APK_NAME || -z $APK_URL ]] && continue
         
         APK_FOUND=true
-        if [[ -f "$ARCH_DIR/$APK_NAME" ]]; then
+        if [[ -f "$ARCH_DIR/$APK_NAME" && "$FORCE_REINDEX" = "false" ]]; then
             echo "  ✅  $APK_NAME up-to-date"
         else
             echo "  ⬇️  downloading $APK_NAME"
@@ -61,7 +62,7 @@ for APP in "${APPS[@]}"; do
 done
 
 # Regenerate index if needed
-if [ "$NEEDS_REINDEX" = "false" ]; then
+if [ "$NEEDS_REINDEX" = "false" && "$FORCE_REINDEX" = "false"]; then
     echo "✅ No new packages were added. Repository is up-to-date. No re-indexing needed."
 else
     echo "🔥 New packages added. Regenerating and signing the repository index..."
