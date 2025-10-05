@@ -73,26 +73,30 @@ build() {
 }
 
 package() {
-    install -dm755 "$pkgdir/usr/lib/bazarr" 
+    install -dm755 "$pkgdir/usr/lib/bazarr"
     install -dm755 "$pkgdir/usr/bin"
     install -dm755 "$pkgdir/var/lib/bazarr"
-
+    
     cp -a "$srcdir/app-source"/. "$pkgdir/usr/lib/bazarr/"
+    
     pip install \
         --break-system-packages \
         --no-deps --no-cache-dir --no-index \
         --find-links="$srcdir/wheelhouse" \
         --root="$pkgdir" --prefix=/usr \
         "webrtcvad-wheels>=2.0.10"
-
-    install -Dm755 /dev/stdin "$pkgdir/usr/bin/bazarr" <<'EOF'
+    
+    # Create wrapper script to launch bazarr from /usr/bin
+    cat > "$srcdir/bazarr-wrapper" <<'EOF'
 #!/bin/sh
 cd /usr/lib/bazarr
 exec /usr/bin/python3 bazarr.py "$@"
 EOF
+    
+    install -Dm755 "$srcdir/bazarr-wrapper" "$pkgdir/usr/bin/bazarr"
 
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
-	install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+    install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 }
 
 sha512sums="
