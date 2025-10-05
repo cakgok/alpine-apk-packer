@@ -3,6 +3,18 @@ on:
   schedule:
     - cron: '0 5 * * *'
   workflow_dispatch:
+    inputs:
+      app_to_build:
+        description: 'Which app to build?'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - bazarr
+          - stashapp
+          - tautulli
+          - jellyseerr
 
 permissions:
   contents: write
@@ -10,6 +22,7 @@ permissions:
 
 jobs:
   bazarr:
+    if: github.event_name == 'schedule' || github.event.inputs.app_to_build == 'all' || github.event.inputs.app_to_build == 'bazarr'
     uses: ./.github/workflows/build.yml
     with:
       APP: bazarr
@@ -18,6 +31,7 @@ jobs:
 
   stashapp:
     needs: bazarr
+    if: github.event_name == 'schedule' || github.event.inputs.app_to_build == 'all' || github.event.inputs.app_to_build == 'stashapp'
     uses: ./.github/workflows/build.yml
     with:
       APP: stashapp
@@ -26,9 +40,18 @@ jobs:
 
   tautulli:
     needs: stashapp
+    if: github.event_name == 'schedule' || github.event.inputs.app_to_build == 'all' || github.event.inputs.app_to_build == 'tautulli'
     uses: ./.github/workflows/build.yml
     with:
       APP: tautulli
       UPSTREAM: tautulli/tautulli
     secrets: inherit     
 
+  jellyseerr:
+    needs: tautulli
+    if: github.event_name == 'schedule' || github.event.inputs.app_to_build == 'all' || github.event.inputs.app_to_build == 'jellyseerr'
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: jellyseerr
+      UPSTREAM: Fallenbagel/jellyseerr
+    secrets: inherit
