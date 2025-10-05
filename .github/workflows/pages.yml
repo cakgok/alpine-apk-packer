@@ -42,7 +42,7 @@ jobs:
         KEY_NAME:         ${{ secrets.KEY_NAME }}
         GITHUB_SERVER_URL: ${{ github.server_url }}
         GITHUB_REPOSITORY: ${{ github.repository }}
-        NEEDS_REINDEX:    ${{ github.event.inputs.needs_reindex }}
+        NEEDS_REINDEX: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
       run: |
         chmod +x main/scripts/publish-repo.sh
         main/scripts/publish-repo.sh gh-pages
