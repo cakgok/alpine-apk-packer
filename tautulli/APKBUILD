@@ -39,8 +39,13 @@ package() {
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
     install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 
-	echo "v$pkgver" > "$pkgdir"/usr/lib/tautulli/version.txt
-	echo "master" > "$pkgdir"/usr/lib/tautulli/branch.txt
+    echo "v$pkgver" > "$pkgdir"/usr/lib/tautulli/version.txt
+    echo "master" > "$pkgdir"/usr/lib/tautulli/branch.txt
+}
+
+start_pre() {
+    checkpath --directory --mode 0755 --owner "tautulli:tautulli" "/var/lib/tautulli"
+    checkpath --directory --mode 0755 --owner "tautulli:tautulli" "/var/log/tautulli"
 }
 
 sha512sums="
