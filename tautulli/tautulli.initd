@@ -9,6 +9,7 @@ logdir="${logdir:-/var/log/tautulli}"
 configdir="${configdir:-/etc/tautulli}"
 supervisor="supervise-daemon"
 command_user="${command_user:-tautulli:tautulli}"
+directory="${usr/lib/tautulli}"
 command="/usr/bin/tautulli"
 command_args="--datadir ${datadir} --config ${configdir}/config.ini --logdir ${logdir} --nolaunch"
 respawn_delay=5

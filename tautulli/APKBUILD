@@ -1,6 +1,6 @@
 pkgname=tautulli
 pkgver=2.16.0
-pkgrel=0
+pkgrel=1
 pkgdesc="A Python based monitoring and tracking tool for Plex Media Server"
 url="https://tautulli.com"
 arch="x86_64"
