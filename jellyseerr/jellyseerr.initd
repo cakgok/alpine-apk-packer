@@ -12,7 +12,6 @@ supervisor="supervise-daemon"
 command="/usr/bin/jellyseerr"
 respawn_delay=5
 respawn_max=10
-pidfile="/run/${RC_SVCNAME}.pid"
 
 depend() {
 	need net
@@ -21,7 +20,6 @@ depend() {
 
 start_pre() {
     checkpath --directory --mode 0755 --owner "${command_user}" "${CONFIG_DIRECTORY}"
-    checkpath --directory --mode 0755 --owner "${command_user}" "${logdir}"
 
     export NODE_ENV
     export CONFIG_DIRECTORY

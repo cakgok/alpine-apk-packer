@@ -5,8 +5,8 @@ pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/Fallenbagel/jellyseerr"
 arch="x86_64"
 license="MIT"
-depends="nodejs npm sqlite-libs libc6-compat libgcc libstdc++ musl-utils gcompat"
-makedepends="nodejs npm python3 make g++ pkgconfig gcompat curl"
+depends="nodejs npm python3 g++ linux-headers"
+makedepends="nodejs npm git python3 make g++ linux-headers"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
@@ -17,67 +17,36 @@ pkgusers="jellyseerr"
 pkggroups="jellyseerr"
 options="!check net"
 
-prepare() {
-	default_prepare
-	cd "$builddir"
-
-	sed -i 's/"husky install"/"echo husky ignored"/' package.json
-	sed -i '/"engines": {/,/},/d' package.json
-
-	export NEXT_TELEMETRY_DISABLED=1
-	export CYPRESS_INSTALL_BINARY=0
-  export SHARP_IGNORE_GLOBAL_LIBVIPS=1
-
-  export NPM_CONFIG_PREFIX="$builddir/.npm-global"
-  install -dm755 "$NPM_CONFIG_PREFIX"
-  npm install -g pnpm@9
-  export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-
-  pnpm install --frozen-lockfile
-}
-
-
 build() {
-    cd "$builddir"
-    
-    export NEXT_TELEMETRY_DISABLED=1
-    export CYPRESS_INSTALL_BINARY=0
-    export SHARP_IGNORE_GLOBAL_LIBVIPS=1
-    
-    export PATH="$builddir/.npm-global/bin:$PATH"
-    pnpm build
-    pnpm cache delete
-}
+    cd "$builddir/$pkgname-$pkgver"
+    npm install --save-dev pnpm@9
+    export PATH="$builddir/$pkgname-$pkgver/node_modules/.bin:$PATH"
 
+    msg "Installing node modules with pnpm..."
+    CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+
+    msg "Building Jellyseerr..."
+    pnpm build
+}
 
 package() {
 	local app_dir="$pkgdir/usr/lib/$pkgname"
+  cd "$builddir/$pkgname-$pkgver"
 
   install -dm755 "$pkgdir/usr/lib/jellyseerr"
   install -dm755 "$pkgdir/usr/bin"
   install -dm755 "$pkgdir/var/lib/jellyseerr"
   install -dm755 "$pkgdir/var/log/jellyseerr"
 
+  export PATH="$builddir/$pkgname-$pkgver/node_modules/.bin:$PATH"
+  pnpm prune --prod
+
   cp -a .next dist public node_modules "$app_dir"/
   cp ./package.json ./jellyseerr-api.yml ./next.config.js "$app_dir/"
 
   rm -rf "$app_dir/.next/cache"
 
-  export PATH="$builddir/.npm-global/bin:$PATH"
-  export PNPM_CONFIG_IGNORE_SCRIPTS=true
-  cd "$app_dir" && pnpm prune --pro --ignore-scripts
-
-  echo "{\"commitTag\":\"v$pkgver\"}" > "$pkgdir/usr/lib/jellyseerr/committag.json"
-
-  #wrapper
-  cat > "$pkgdir/usr/bin/jellyseerr" <<-EOF
-  #!/bin/sh
-  cd /usr/lib/jellyseerr
-  exec /usr/bin/node dist/index.js "$@"
-EOF
-
-  chmod +x "$pkgdir/usr/bin/jellyseerr"
-
+  install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir/usr/bin/jellyseerr"
   install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
   install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 }
