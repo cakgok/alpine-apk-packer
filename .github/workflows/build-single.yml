@@ -1,0 +1,51 @@
+name: Build Single App          
+on:
+  workflow_dispatch:
+    inputs:
+        app_to_build:
+          description: 'Which app to build?'
+          required: true
+          type: choice
+          options:
+            - bazarr
+            - stashapp
+            - tautulli
+            - jellyseerr
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  bazarr:
+    if: github.event.inputs.app_to_build == 'bazarr'
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: bazarr
+      UPSTREAM: morpheus65535/bazarr
+    secrets: inherit     
+
+  stashapp:
+    if: github.event.inputs.app_to_build == 'stashapp'
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: stashapp
+      UPSTREAM: stashapp/stash
+    secrets: inherit     
+
+  tautulli:
+    if: github.event.inputs.app_to_build == 'tautulli'
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: tautulli
+      UPSTREAM: tautulli/tautulli
+    secrets: inherit     
+
+  jellyseerr:
+    if: github.event.inputs.app_to_build == 'jellyseerr'
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: jellyseerr
+      UPSTREAM: fallenbagel/jellyseerr
+    secrets: inherit
+
