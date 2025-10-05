@@ -18,7 +18,7 @@ git add "${APP_NAME}/APKBUILD"
 if ! git diff --cached --quiet; then
   echo "APKBUILD updated. Committing changes..."
   git commit -m "${APP_NAME}: bump to v${VERSION}"
-  git pull --rebase --autostash origin main
+  git pull --rebase origin main
   git push origin HEAD:main
 else
   echo "APKBUILD already up-to-date."
