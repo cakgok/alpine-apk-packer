@@ -17,21 +17,20 @@ pkgusers="jellyseerr"
 pkggroups="jellyseerr"
 options="!check net"
 
+prepare() {
+  npm install -g pnpm@9
+  export PATH="$PATH:$(npm config get prefix)/bin"
+}
+
 build() {
-    npm install --save-dev pnpm@9
-    export PATH="$PWD/node_modules/.bin:$PATH"
-
-    msg "Installing node modules with pnpm..."
-    CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
-
-    msg "Building Jellyseerr..."
-    pnpm build
+  CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+  pnpm run build
 }
 
 package() {
 	local app_dir="$pkgdir/usr/lib/$pkgname"
   cd "$builddir/$pkgname-$pkgver"
-  
+
   install -dm755 "$pkgdir/usr/lib/jellyseerr"
   install -dm755 "$pkgdir/usr/bin"
   install -dm755 "$pkgdir/var/lib/jellyseerr"
