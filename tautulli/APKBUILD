@@ -1,6 +1,6 @@
 pkgname=tautulli
 pkgver=2.16.0
-pkgrel=1
+pkgrel=0
 pkgdesc="A Python based monitoring and tracking tool for Plex Media Server"
 url="https://tautulli.com"
 arch="x86_64"
@@ -45,7 +45,7 @@ package() {
 
 sha512sums="
 afca14069ddffaa5a0a85d5085e49dda277327b3a81d5863d1550c5fa1e63eb6f9346aad95635bba556047faef34dc3dcfe321e72ff75ed60b3c387611ffcf9a  tautulli-2.16.0.tar.gz
-f29467cc325ce2570c8d57be67515bcafd669aac37528e2695efad3c7b921724e902269559cb743f8624ac552f021fb910b540c6f70d798b81ac3a2efda2e388  tautulli.initd
+b390c1f5aa62f82af5e4abf83b1611af218a6cb8f5bc012b052672d56b279c73c4ef406086f479409aa52f3c0a77a0942733ad2f338c49bb813892955a2bae11  tautulli.initd
 808e465c38a2362752c329ca0c0b2918fbe5798f71771efb4097ea95b7e9ad9833fef685d23a5017f14eda9035c58fb4a76a4c55d48d6151b60cdb3d0b031988  tautulli.confd
 cc9593a87e8a760b658663a2d16b293da0cb2ace9b9dd35462048a229a897c550bf841addad753b1d384d395528b7bff2fd63416a043a0c292c76a684f12728d  tautulli.wrapper
 "
