@@ -14,7 +14,7 @@ HDR=("-H" "Accept: application/vnd.github+json")
 [[ -n $GH_TOKEN ]] && HDR+=("-H" "Authorization: Bearer $GH_TOKEN")
 
 mkdir -p "$ARCH_DIR"
-NEEDS_REINDEX=false
+NEEDS_REINDEX="${NEEDS_REINDEX:-false}"
 
 get_release() {
     local tag=$1
