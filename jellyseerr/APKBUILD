@@ -17,15 +17,19 @@ pkgusers="jellyseerr"
 pkggroups="jellyseerr"
 options="!check net"
 
-prepare() {
-  npm install -g pnpm@9
-  export PATH="$PATH:$(npm config get prefix)/bin"
-}
-
 build() {
-  CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
-  pnpm run build
-}
+    msg "Installing pnpm@9 locally..."
+    cd "$srcdir"
+    npm install --prefix "$srcdir/npm-tmp" pnpm@9
+    export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
+    
+    cd "$builddir"
+    msg "Installing node modules with pnpm..."
+    CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+    
+    msg "Building Jellyseerr..."
+    pnpm build
+} 
 
 package() {
 	local app_dir="$pkgdir/usr/lib/$pkgname"
@@ -36,9 +40,9 @@ package() {
   install -dm755 "$pkgdir/var/lib/jellyseerr"
   install -dm755 "$pkgdir/var/log/jellyseerr"
 
-  export PATH="$PWD/node_modules/.bin:$PATH"
+  export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
   pnpm prune --prod
-
+  
   cp -a .next dist public node_modules "$app_dir"/
   cp ./package.json ./jellyseerr-api.yml ./next.config.js "$app_dir/"
 
