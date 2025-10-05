@@ -35,7 +35,7 @@ package() {
 
     cp -a "$builddir"/. "$pkgdir/usr/lib/tautulli/"
 
-    install -Dm755 "$srcdir"/tautulli.wrapper "$pkgdir"/usr/bin/tautulli
+    install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir"/usr/bin/tautulli
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
     install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 

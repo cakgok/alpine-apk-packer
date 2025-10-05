@@ -87,7 +87,7 @@ package() {
         --root="$pkgdir" --prefix=/usr \
         "webrtcvad-wheels>=2.0.10"
         
-    install -Dm755 "$srcdir"/bazarr.wrapper "$pkgdir"/usr/bin/$pkgname
+    install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir"/usr/bin/$pkgname
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
     install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 }
