@@ -6,7 +6,7 @@ url="https://github.com/Fallenbagel/jellyseerr"
 arch="x86_64"
 license="MIT"
 depends="nodejs npm python3 g++ linux-headers"
-makedepends="nodejs npm git python3 make g++ linux-headers"
+makedepends="nodejs npm git python3 make linux-headers"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
@@ -18,9 +18,8 @@ pkggroups="jellyseerr"
 options="!check net"
 
 build() {
-    cd "$builddir/$pkgname-$pkgver"
     npm install --save-dev pnpm@9
-    export PATH="$builddir/$pkgname-$pkgver/node_modules/.bin:$PATH"
+    export PATH="$PWD/node_modules/.bin:$PATH"
 
     msg "Installing node modules with pnpm..."
     CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
@@ -32,13 +31,13 @@ build() {
 package() {
 	local app_dir="$pkgdir/usr/lib/$pkgname"
   cd "$builddir/$pkgname-$pkgver"
-
+  
   install -dm755 "$pkgdir/usr/lib/jellyseerr"
   install -dm755 "$pkgdir/usr/bin"
   install -dm755 "$pkgdir/var/lib/jellyseerr"
   install -dm755 "$pkgdir/var/log/jellyseerr"
 
-  export PATH="$builddir/$pkgname-$pkgver/node_modules/.bin:$PATH"
+  export PATH="$PWD/node_modules/.bin:$PATH"
   pnpm prune --prod
 
   cp -a .next dist public node_modules "$app_dir"/
