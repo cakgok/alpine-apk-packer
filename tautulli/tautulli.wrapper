@@ -1,0 +1,3 @@
+#!/bin/sh
+cd /usr/lib/tautulli
+exec /usr/bin/python3 Tautulli.py "\$@"

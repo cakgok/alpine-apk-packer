@@ -39,6 +39,7 @@ install="$pkgname.pre-install"
 source="$pkgname-$pkgver.zip::https://github.com/morpheus65535/bazarr/releases/download/v$pkgver/bazarr.zip
   bazarr.initd
   bazarr.confd
+  bazarr.wrapper
 "
 
 prepare() {
@@ -85,16 +86,8 @@ package() {
         --find-links="$srcdir/wheelhouse" \
         --root="$pkgdir" --prefix=/usr \
         "webrtcvad-wheels>=2.0.10"
-    
-    # Create wrapper script to launch bazarr from /usr/bin
-    cat > "$srcdir/bazarr-wrapper" <<'EOF'
-#!/bin/sh
-cd /usr/lib/bazarr
-exec /usr/bin/python3 bazarr.py "$@"
-EOF
-    
-    install -Dm755 "$srcdir/bazarr-wrapper" "$pkgdir/usr/bin/bazarr"
-
+        
+    install -Dm755 "$srcdir"/bazarr.wrapper "$pkgdir"/usr/bin/$pkgname
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
     install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 }

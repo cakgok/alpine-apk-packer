@@ -17,6 +17,7 @@ subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Tautulli/Tautulli/archive/v$pkgver.tar.gz
 	tautulli.initd
 	tautulli.confd
+  tautulli.wrapper
 	"
   
 install="$pkgname.pre-install"
@@ -34,21 +35,13 @@ package() {
 
     cp -a "$builddir"/. "$pkgdir/usr/lib/tautulli/"
 
-    # Create wrapper script
-    cat > "$pkgdir/usr/bin/tautulli" <<-EOF
-		#!/bin/sh
-		cd /usr/lib/tautulli
-		exec /usr/bin/python3 Tautulli.py "\$@"
-	EOF
-    chmod +x "$pkgdir/usr/bin/tautulli"
-
+    install -Dm755 "$srcdir"/tautulli.wrapper "$pkgdir"/usr/bin/tautulli
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
     install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 
 	echo "v$pkgver" > "$pkgdir"/usr/lib/tautulli/version.txt
 	echo "master" > "$pkgdir"/usr/lib/tautulli/branch.txt
 }
-
 
 sha512sums="
 afca14069ddffaa5a0a85d5085e49dda277327b3a81d5863d1550c5fa1e63eb6f9346aad95635bba556047faef34dc3dcfe321e72ff75ed60b3c387611ffcf9a  tautulli-2.16.0.tar.gz
