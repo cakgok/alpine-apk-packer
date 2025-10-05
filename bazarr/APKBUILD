@@ -1,5 +1,5 @@
 pkgname=bazarr
-pkgver=1.5.1
+pkgver=1.5.3
 pkgrel=0
 pkgdesc="Bazarr – companion app for Sonarr/Radarr that fetches subtitles"
 url="https://bazarr.media"
@@ -85,12 +85,11 @@ package() {
         --root="$pkgdir" --prefix=/usr \
         "webrtcvad-wheels>=2.0.10"
 
-    cat > "$pkgdir/usr/bin/bazarr" <<-EOF
-		#!/bin/sh
-		# Wrapper script to launch bazarr from /usr/bin
-		cd /usr/lib/bazarr
-		exec /usr/bin/python3 bazarr.py "\$@"
-	EOF
+    install -Dm755 /dev/stdin "$pkgdir/usr/bin/bazarr" <<'EOF'
+#!/bin/sh
+cd /usr/lib/bazarr
+exec /usr/bin/python3 bazarr.py "$@"
+EOF
 
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
 	install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
