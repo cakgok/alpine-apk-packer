@@ -58,6 +58,10 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
+        ref: main
+    
+    - name: Pull latest changes
+      run: git pull origin main
 
     - name: Update APKBUILD
       run: bash ./scripts/update-apkbuild.sh "${{env.APP}}" "${{ needs.detect-updates.outputs.new_version }}"
