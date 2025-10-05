@@ -12,7 +12,9 @@ supervisor="supervise-daemon"
 command="/usr/bin/stash"
 respawn_delay=5
 respawn_max=10
-pidfile="/run/${RC_SVCNAME}.pid"          
+stopsig="INT" 
+retry="SIGINT/20/SIGTERM/10/SIGKILL/5"
+supervise_daemon_args="--respawn-delay 5 --respawn-max 10"
 
 depend() {
 	need net 

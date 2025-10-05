@@ -13,7 +13,6 @@ command="/usr/bin/tautulli"
 command_args="--datadir ${datadir} --config ${configdir}/config.ini --logdir ${logdir} --nolaunch"
 respawn_delay=5
 respawn_max=10
-pidfile="/run/${RC_SVCNAME}.pid"          
 
 depend() {
 	need net 

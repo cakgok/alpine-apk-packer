@@ -8,7 +8,6 @@ directory="${directory:-/var/lib/bazarr}"
 command_user="${command_user:-bazarr:bazarr}"
 
 supervisor="supervise-daemon"
-pidfile="/run/${RC_SVCNAME}.pid"
 command="/usr/bin/bazarr"
 command_args="-c ${directory}"
 respawn_delay=5
