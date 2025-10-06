@@ -1,0 +1,42 @@
+{
+  "cakgok@alpine-repo-68d45397.rsa.pub": {
+    "type": "pub",
+    "size": 800
+  },
+  "main": {
+    "x86_64": {
+      "APKINDEX.tar.gz": {
+        "type": "tar.gz",
+        "size": 1814
+      },
+      "bazarr-1.5.3-r0.apk": {
+        "type": "apk",
+        "size": 24269783
+      },
+      "bazarr-openrc-1.5.3-r0.apk": {
+        "type": "apk",
+        "size": 1940
+      },
+      "stash-0.28.1-r0.apk": {
+        "type": "apk",
+        "size": 24144685
+      },
+      "stash-openrc-0.28.1-r0.apk": {
+        "type": "apk",
+        "size": 1932
+      },
+      "stash-python-0.28.1-r0.apk": {
+        "type": "apk",
+        "size": 7219859
+      },
+      "tautulli-2.16.0-r0.apk": {
+        "type": "apk",
+        "size": 14141492
+      },
+      "tautulli-openrc-2.16.0-r0.apk": {
+        "type": "apk",
+        "size": 1899
+      }
+    }
+  }
+}
