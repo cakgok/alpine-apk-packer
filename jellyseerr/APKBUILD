@@ -29,32 +29,35 @@ build() {
     pnpm build
 }
 
+# This is the final, recommended package() function
 package() {
-	local app_dir="$pkgdir/usr/lib/$pkgname"
-  cd "$builddir"
+    local app_dir="$pkgdir/usr/lib/$pkgname"
+    cd "$builddir"
 
-  export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
-  pnpm prune --prod --ignore-scripts
-  
-  install -dm755 "$pkgdir/usr/lib/jellyseerr"
-  install -dm755 "$pkgdir/usr/bin"
-  install -dm755 "$pkgdir/var/lib/jellyseerr"
-  install -dm755 "$pkgdir/var/log/jellyseerr"
+    export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
+    pnpm prune --prod --ignore-scripts
 
-  cp -a .next dist public node_modules "$app_dir"/
-  cp ./package.json ./jellyseerr-api.yml ./next.config.js "$app_dir/"
+    install -dm755 "$app_dir"
+    install -dm755 "$pkgdir/var/lib/jellyseerr"
+    install -dm755 "$pkgdir/var/log/jellyseerr"
+    install -dm755 "$pkgdir/etc/jellyseerr"
 
-  rm -rf "$app_dir/.next/cache" \
-          "$app_dir/node_modules/.cache" \
-          "$app_dir/node_modules/**/test" \
-          "$app_dir/node_modules/**/docs"
+    cp -a .next dist public node_modules \
+          package.json jellyseerr-api.yml next.config.js \
+          "$app_dir/"
 
-  find $app_dir/node_modules/{sharp,ffmpeg-static} \
-     -type f ! -path '*linux-x64-musl*' -delete
+    # Remove caches, tests, and docs for size reduction.
+    rm -rf "$app_dir/.next/cache"
+    find "$app_dir/node_modules" -type d -name "test" -exec rm -rf {} +
+    find "$app_dir/node_modules" -type d -name "docs" -exec rm -rf {} +
+    find "$app_dir/node_modules" \
+        \( -path '*/sharp/**' -o -path '*/ffmpeg-static/**' \) \
+        ! -path '*linux-x64-musl*' -type f -delete
+    find "$app_dir" -name '*.map' -type f -delete
 
-  install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir/usr/bin/jellyseerr"
-  install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
-  install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+    install -Dm755 "$srcdir/$pkgname.wrapper" "$pkgdir/usr/bin/jellyseerr"
+    install -Dm755 "$srcdir/$pkgname.initd"   "$pkgdir/etc/init.d/$pkgname"
+    install -Dm644 "$srcdir/$pkgname.confd"   "$pkgdir/etc/conf.d/$pkgname"
 }
 
 sha512sums="
