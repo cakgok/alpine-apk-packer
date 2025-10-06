@@ -11,6 +11,7 @@ subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
         jellyseerr.initd
         jellyseerr.confd
+        jellyseerr.wrapper
        "
        
 pkgusers="jellyseerr"
