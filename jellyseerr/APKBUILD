@@ -25,17 +25,17 @@ build() {
     export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
 
     cd "$builddir"
-    msg "Installing node modules with pnpm..."
-    CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
-    
-    msg "Building Jellyseerr..."
+    CYPRESS_INSTALL_BINARY=0 pnpm install --prod --frozen-lockfile
     pnpm build
-} 
+}
 
 package() {
 	local app_dir="$pkgdir/usr/lib/$pkgname"
   cd "$builddir"
 
+  export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
+  pnpm prune --prod --ignore-scripts
+  
   install -dm755 "$pkgdir/usr/lib/jellyseerr"
   install -dm755 "$pkgdir/usr/bin"
   install -dm755 "$pkgdir/var/lib/jellyseerr"
@@ -44,9 +44,13 @@ package() {
   cp -a .next dist public node_modules "$app_dir"/
   cp ./package.json ./jellyseerr-api.yml ./next.config.js "$app_dir/"
 
-  export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
-  pnpm prune --prod --ignore-scripts 
-  rm -rf "$app_dir/.next/cache"
+  rm -rf "$app_dir/.next/cache" \
+          "$app_dir/node_modules/.cache" \
+          "$app_dir/node_modules/**/test" \
+          "$app_dir/node_modules/**/docs"
+
+  find $app_dir/node_modules/{sharp,ffmpeg-static} \
+     -type f ! -path '*linux-x64-musl*' -delete
 
   install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir/usr/bin/jellyseerr"
   install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
