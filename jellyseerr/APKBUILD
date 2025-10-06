@@ -23,7 +23,6 @@ build() {
     cd "$srcdir"
     npm install --prefix "$srcdir/npm-tmp" pnpm@9
     export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
-    pnpm prune --prod --ignore-scripts 
 
     cd "$builddir"
     msg "Installing node modules with pnpm..."
@@ -44,6 +43,9 @@ package() {
 
   cp -a .next dist public node_modules "$app_dir"/
   cp ./package.json ./jellyseerr-api.yml ./next.config.js "$app_dir/"
+
+  export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
+  pnpm prune --prod --ignore-scripts 
   rm -rf "$app_dir/.next/cache"
 
   install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir/usr/bin/jellyseerr"
