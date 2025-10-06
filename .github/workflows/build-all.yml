@@ -30,5 +30,13 @@ jobs:
     with:
       APP: tautulli
       UPSTREAM: tautulli/tautulli
-    secrets: inherit     
+    secrets: inherit
+    
+  jellyseerr:
+    needs: tautulli
+    uses: ./.github/workflows/build.yml
+    with:
+      APP: jellyseerr
+      UPSTREAM: fallenbagel/jellyseerr
+    secrets: inherit
 
