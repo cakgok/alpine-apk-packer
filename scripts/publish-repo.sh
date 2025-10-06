@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 
-APPS=("bazarr" "stashapp" "tautulli")
+APPS=("bazarr" "stashapp" "tautulli" "jellyseerr")
 EXISTING_REPO_DIR="gh-pages"
 REPO_DIR="${1:-gh-pages}"
 ARCH_DIR="$REPO_DIR/main/x86_64"
