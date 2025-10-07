@@ -30,13 +30,19 @@ build() {
     pnpm build
 
     rm -rf node_modules
-    
+          
     pnpm install --prod --ignore-scripts --frozen-lockfile --no-optional
     pnpm store prune                 
     rm -rf src server charts gen-docs docs .next/cache
 
+    # Remove broken symlinks (src nix package)
+    find node_modules -type l -exec sh -c 'test ! -e "$0" && rm -- "$0"' {} \;
+
     find node_modules -type f \( -name '*.md' -o -name '*.ts' -o -name '*.tsx' -o -name 'LICENSE*' -o -name 'CHANGELOG*' -o -name 'README*' \) -delete
     find node_modules -type d \( -name test -o -name tests -o -name docs -o -name examples -o -name coverage -o -name '.github' \) -exec rm -rf {} + 2>/dev/null || true
+    
+    echo "=== Top 20 largest directories in node_modules ==="
+    du -sh node_modules/* 2>/dev/null | sort -rh | head -20
 }
 
 package() {

@@ -18,7 +18,8 @@ jobs:
 
     environment:
       name: github-pages
-
+      url: ${{ steps.deployment.outputs.page_url }}
+    
     steps:
     - name: Install abuild + apk-tools
       run: apk add --no-cache alpine-sdk apk-tools openssl tar gzip git curl jq bash abuild python3
@@ -28,13 +29,15 @@ jobs:
       with:
         path: main
 
-    - name: Checkout gh-pages branch (for existing repo)
-      uses: actions/checkout@v4
-      with:
-        ref: gh-pages
-        path: gh-pages
-        token: ${{ secrets.GH_PAT }}
+    - name: Create empty directory for the repository
+      run: mkdir -p final_repo
         
+    - name: Restore cached packages
+      uses: actions/cache@v4
+      with:
+        path: final_repo/main/x86_64
+        key: apk-packages-cache-v1
+
     - name: Publish repository
       env:
         GH_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
@@ -45,16 +48,16 @@ jobs:
         FORCE_REINDEX: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
       run: |
         chmod +x main/scripts/publish-repo.sh
-        main/scripts/publish-repo.sh gh-pages
+        main/scripts/publish-repo.sh final_repo
 
-    - name: Commit & push
-      run: |
-        cd gh-pages
-        git config user.name  "github-actions"
-        git config user.email "github-actions@users.noreply.github.com"
-        git checkout --orphan temp-branch
-        git add .
-        git commit -m "repo update $(date -u +%F)"
-        git branch -D gh-pages || true
-        git branch -m gh-pages
-        git push --force origin gh-pages
+    - name: Configure GitHub Pages
+      uses: actions/configure-pages@v4
+
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./final_repo
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
