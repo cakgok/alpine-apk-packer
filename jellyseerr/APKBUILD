@@ -1,28 +1,28 @@
-pkgname=jellyseerr
+pkgname=seerr
 pkgver=2.7.3
 pkgrel=0
 pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
-url="https://github.com/Fallenbagel/jellyseerr"
+url="https://github.com/seerr-team/seerr"
 arch="x86_64"
 license="MIT"
 depends="nodejs"
 makedepends="nodejs npm git python3 make linux-headers"
 subpackages="$pkgname-openrc::x86_64"
-source="$pkgname-$pkgver.tar.gz::https://github.com/Fallenbagel/jellyseerr/archive/refs/tags/v$pkgver.tar.gz
-        jellyseerr.initd
-        jellyseerr.confd
-        jellyseerr.wrapper
+source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/refs/tags/v$pkgver.tar.gz
+        seerr.initd
+        seerr.confd
+        seerr.wrapper
        "
        
-pkgusers="jellyseerr"
-pkggroups="jellyseerr"
+pkgusers="seerr"
+pkggroups="seerr"
 options="!check !tracedeps"
 
 build() {
-    cd "$builddir"
     npm install --prefix "$srcdir/npm-tmp" pnpm@9
     export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
 
+    cd "$builddir"
     CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile 
     pnpm build
     pnpm prune --prod --ignore-scripts
@@ -33,9 +33,9 @@ package() {
     local app_dir="$pkgdir/usr/lib/$pkgname"
     
     install -dm755 "$app_dir"
-    install -dm755 "$pkgdir/var/lib/jellyseerr"
-    install -dm755 "$pkgdir/var/log/jellyseerr"
-    install -dm755 "$pkgdir/etc/jellyseerr"
+    install -dm755 "$pkgdir/var/lib/seerr"
+    install -dm755 "$pkgdir/var/log/seerr"
+    install -dm755 "$pkgdir/etc/seerr"
 
     cp -a .next dist public node_modules \
           package.json jellyseerr-api.yml next.config.js \
@@ -47,14 +47,14 @@ package() {
         ! -path '*linux-x64-musl*' -type f -delete
     find "$app_dir" -name '*.map' -type f -delete
 
-    install -Dm755 "$srcdir/$pkgname.wrapper" "$pkgdir/usr/bin/jellyseerr"
+    install -Dm755 "$srcdir/$pkgname.wrapper" "$pkgdir/usr/bin/seerr"
     install -Dm755 "$srcdir/$pkgname.initd"   "$pkgdir/etc/init.d/$pkgname"
     install -Dm644 "$srcdir/$pkgname.confd"   "$pkgdir/etc/conf.d/$pkgname"
 }
 
 sha512sums="
-d27d49fa11a7b30ec1693b23e23fe7a93613d901f99de6d24de658bb7fd2bc13db957ae1c0f98a1e0ef709b923736f65cecd2ae22144ffe26f1dbee1b830f5b2  jellyseerr-2.7.3.tar.gz
-e73b5f83092d0f014057672b31e5cdbe1a4b85c28ab4d965947c2b39470427d3c51dfbcf7a8bebd92b2afbaea69cb8030cab0c60ab1d7dcebaf9df6de36fb143  jellyseerr.initd
-9d5ebc45d18268bcec2d0ec48b9d86538f236d2ff8845b081691176cd0689bf6b521e244b0ce27fc3aefd569bfc7c2d4b8827d7cc4043bd9ffe8660d3bdce061  jellyseerr.confd
-20dd1613d2d4e3a3286e2779e5bfcb22f97d56f27e9ae9bd45791a9676cb4f9959e4f5a19ea73cc8fa055b5181ec778f97e723c995dfde049a11747e68e20fcb  jellyseerr.wrapper
+d27d49fa11a7b30ec1693b23e23fe7a93613d901f99de6d24de658bb7fd2bc13db957ae1c0f98a1e0ef709b923736f65cecd2ae22144ffe26f1dbee1b830f5b2  seerr-2.7.3.tar.gz
+e73b5f83092d0f014057672b31e5cdbe1a4b85c28ab4d965947c2b39470427d3c51dfbcf7a8bebd92b2afbaea69cb8030cab0c60ab1d7dcebaf9df6de36fb143  seerr.initd
+9d5ebc45d18268bcec2d0ec48b9d86538f236d2ff8845b081691176cd0689bf6b521e244b0ce27fc3aefd569bfc7c2d4b8827d7cc4043bd9ffe8660d3bdce061  seerr.confd
+20dd1613d2d4e3a3286e2779e5bfcb22f97d56f27e9ae9bd45791a9676cb4f9959e4f5a19ea73cc8fa055b5181ec778f97e723c995dfde049a11747e68e20fcb  seerr.wrapper
 "

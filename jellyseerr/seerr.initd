@@ -1,15 +1,15 @@
 #!/sbin/openrc-run
 # /etc/init.d/jellyseerr
 
-name="Jellyseerr"
-description="Jellyseerr Service"
+name="seerr"
+description="seerr Service"
 
-command_user="${command_user:-jellyseerr:jellyseerr}"
-CONFIG_DIRECTORY="${CONFIG_DIRECTORY:-/var/lib/jellyseerr}"
+command_user="${command_user:-seerr:seerr}"
+CONFIG_DIRECTORY="${CONFIG_DIRECTORY:-/var/lib/seerr}"
 NODE_ENV="${NODE_ENV:-production}"
 
 supervisor="supervise-daemon"
-command="/usr/bin/jellyseerr"
+command="/usr/bin/seerr"
 respawn_delay=5
 respawn_max=10
 

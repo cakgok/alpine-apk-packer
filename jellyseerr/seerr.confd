@@ -1,0 +1,5 @@
+# /etc/conf.d/seerr
+command_user="seerr:seerr"
+
+NODE_ENV="production"
+CONFIG_DIRECTORY="/var/lib/seerr"

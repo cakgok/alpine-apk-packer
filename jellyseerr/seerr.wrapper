@@ -1,3 +1,3 @@
 #!/bin/sh
-cd /usr/lib/jellyseerr
+cd /usr/lib/seerr
 exec /usr/bin/node dist/index.js "$@"
