@@ -32,13 +32,16 @@ jobs:
     - name: Create empty directory for the repository
       run: mkdir -p final_repo
         
-    - name: Restore cached packages
-      uses: actions/cache@v4
+    - name: Restore package cache
+      uses: actions/cache/restore@v4
       with:
         path: final_repo/main/x86_64
-        key: apk-packages-cache-v1
+        key: apk-packages-${{ github.run_number }}
+        restore-keys: |
+          apk-packages-
 
     - name: Publish repository
+      id: publish
       env:
         GH_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
         PACKAGER_PRIVKEY: ${{ secrets.PACKAGER_PRIVKEY }}
@@ -50,14 +53,24 @@ jobs:
         chmod +x main/scripts/publish-repo.sh
         main/scripts/publish-repo.sh final_repo
 
+    - name: Save package cache
+      uses: actions/cache/save@v4
+      if: steps.publish.outputs.reindex == 'true'
+      with:
+        path: final_repo/main/x86_64
+        key: apk-packages-${{ github.run_number }}
+        
     - name: Configure GitHub Pages
+      if: steps.publish.outputs.reindex == 'true'
       uses: actions/configure-pages@v4
 
     - name: Upload Pages artifact
+      if: steps.publish.outputs.reindex == 'true'
       uses: actions/upload-pages-artifact@v3
       with:
         path: ./final_repo
 
     - name: Deploy to GitHub Pages
+      if: steps.publish.outputs.reindex == 'true'
       id: deployment
       uses: actions/deploy-pages@v4
