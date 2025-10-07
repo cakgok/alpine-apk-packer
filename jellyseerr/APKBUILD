@@ -23,10 +23,20 @@ build() {
     export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
 
     cd "$builddir"
-    CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile 
+    export NEXT_TELEMETRY_DISABLED=1
+    export CYPRESS_INSTALL_BINARY=0
+    
+    pnpm install --frozen-lockfile 
     pnpm build
-    pnpm prune --prod --ignore-scripts
+
+    rm -rf node_modules
+    
+    pnpm install --prod --ignore-scripts --frozen-lockfile --no-optional
+    pnpm store prune                 
     rm -rf src server charts gen-docs docs .next/cache
+
+    find node_modules -type f \( -name '*.md' -o -name '*.ts' -o -name '*.tsx' -o -name 'LICENSE*' -o -name 'CHANGELOG*' -o -name 'README*' \) -delete
+    find node_modules -type d \( -name test -o -name tests -o -name docs -o -name examples -o -name coverage -o -name '.github' \) -exec rm -rf {} + 2>/dev/null || true
 }
 
 package() {
@@ -42,11 +52,12 @@ package() {
           "$app_dir/"
 
     rm -rf "$app_dir/.next/cache"
+    find "$app_dir" -name '*.map' -type f -delete
+
     find "$app_dir/node_modules" \
         \( -path '*/sharp/**' -o -path '*/ffmpeg-static/**' \) \
         ! -path '*linux-x64-musl*' -type f -delete
-    find "$app_dir" -name '*.map' -type f -delete
-
+    
     install -Dm755 "$srcdir/$pkgname.wrapper" "$pkgdir/usr/bin/seerr"
     install -Dm755 "$srcdir/$pkgname.initd"   "$pkgdir/etc/init.d/$pkgname"
     install -Dm644 "$srcdir/$pkgname.confd"   "$pkgdir/etc/conf.d/$pkgname"
