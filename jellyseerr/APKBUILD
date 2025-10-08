@@ -5,14 +5,15 @@ pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/seerr-team/seerr"
 arch="x86_64"
 license="MIT"
-depends="nodejs sqlite-libs vips"
-makedepends="nodejs npm git python3 make linux-headers gcc g++ py3-setuptools vips-dev"
+depends="nodejs bash"
+makedepends="pnpm"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/refs/tags/v$pkgver.tar.gz
         seerr.initd
         seerr.confd
         seerr.pre-install
         seerr.wrapper
+        seerr-modernize.patch
        "
        
 pkgusers="seerr"
@@ -20,18 +21,14 @@ pkggroups="seerr"
 options="!check !tracedeps"
 
 build() {
-    npm install --prefix "$srcdir/npm-tmp" pnpm@9
-    export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
-
     cd "$builddir"
     sed -i 's/husky install//' package.json
-    sed -i 's/"sharp":[^,]*/"sharp":"^0.36.4"/' package.json
-
+    patch -p1 -i "$srcdir/seerr-modernize.patch"
+    
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0
-    export PNPM_CONFIG_UNSAFE_PERM=true
-    export npm_config_build_from_source=true
-    pnpm install --no-frozen-lockfile 
+    
+    pnpm install --frozen-lockfile --unsafe-perm
     pnpm build
     pnpm prune --prod --ignore-scripts
 
@@ -47,9 +44,9 @@ package() {
     install -dm755 "$pkgdir/etc/seerr"
 
     cd "$builddir"
-    cp -RL .next dist public node_modules \
-           package.json jellyseerr-api.yml next.config.js \
-           "$app_dir/"
+    cp -aL .next dist public node_modules \
+        package.json jellyseerr-api.yml next.config.js \
+        "${pkgdir}/usr/lib/jellyseerr"
 
     rm -rf "$app_dir/.next/cache"
     find "$app_dir" -name '*.map' -type f -delete
