@@ -59,9 +59,8 @@ package() {
     rm -rf "$app_dir/.next/cache"
     find "$app_dir" -name '*.map' -type f -delete
 
-    find "$app_dir/node_modules" \
-        \( -path '*/sharp/**' -o -path '*/ffmpeg-static/**' \) \
-        ! -path '*linux-x64-musl*' -type f -delete
+#    find "$app_dir/node_modules" \
+#        \( -path '*/sharp/**' -o -path '*/ffmpeg-static/**' \) ! -path '*linux-x64-musl*' -type f -delete
     
     install -Dm755 "$srcdir/$pkgname.wrapper" "$pkgdir/usr/bin/seerr"
     install -Dm755 "$srcdir/$pkgname.initd"   "$pkgdir/etc/init.d/$pkgname"
