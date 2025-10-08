@@ -31,7 +31,7 @@ build() {
     export CYPRESS_INSTALL_BINARY=0
     export PNPM_CONFIG_UNSAFE_PERM=true
     export npm_config_build_from_source=true
-    pnpm install --frozen-lockfile 
+    pnpm install --no-frozen-lockfile 
     pnpm build
     pnpm prune --prod --ignore-scripts
 
