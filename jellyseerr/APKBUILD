@@ -34,7 +34,7 @@ build() {
 
     rm -rf node_modules
           
-    pnpm install --prod --frozen-lockfile --no-optional
+    pnpm install --prod --frozen-lockfile
     pnpm store prune
     rm -rf src server charts gen-docs docs .next/cache
 
