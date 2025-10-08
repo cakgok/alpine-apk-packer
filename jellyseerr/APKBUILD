@@ -23,7 +23,6 @@ options="!check !tracedeps"
 build() {
     cd "$builddir"
     sed -i 's/husky install//' package.json
-    patch -p1 -i "$srcdir/seerr-modernize.patch"
     
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0

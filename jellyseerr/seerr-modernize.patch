@@ -1,4 +1,3 @@
-# seerr-modernize.patch
 --- a/package.json
 +++ b/package.json
 @@ -173,13 +173,19 @@
