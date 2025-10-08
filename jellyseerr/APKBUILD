@@ -25,7 +25,8 @@ build() {
 
     cd "$builddir"
     sed -i 's/husky install//' package.json
-
+    sed -i 's/"sharp":[^,]*/"sharp":"^0.34.4"/' package.json
+    
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0
     export PNPM_CONFIG_UNSAFE_PERM=true
