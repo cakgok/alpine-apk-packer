@@ -28,7 +28,8 @@ build() {
 
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0
-    
+    export PNPM_CONFIG_UNSAFE_PERM=true
+    export npm_config_build_from_source=true
     pnpm install --frozen-lockfile 
     pnpm build
     pnpm prune --prod --ignore-scripts
@@ -45,13 +46,9 @@ package() {
     install -dm755 "$pkgdir/etc/seerr"
 
     cd "$builddir"
-    pnpm deploy "$app_dir"
-    cp "$builddir/jellyseerr-api.yml" "$app_dir/"
-    cp "$builddir/next.config.js" "$app_dir/"
-    
-#    cp -a .next dist public node_modules \
-#          package.json jellyseerr-api.yml next.config.js \
-#          "$app_dir/"
+    cp -RL .next dist public node_modules \
+           package.json jellyseerr-api.yml next.config.js \
+           "$app_dir/"
 
     rm -rf "$app_dir/.next/cache"
     find "$app_dir" -name '*.map' -type f -delete
