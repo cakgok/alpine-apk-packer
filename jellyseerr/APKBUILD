@@ -5,8 +5,8 @@ pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/seerr-team/seerr"
 arch="x86_64"
 license="MIT"
-depends="nodejs sqlite-libs"
-makedepends="nodejs npm git python3 make linux-headers gcc g++ py3-setuptools"
+depends="nodejs sqlite-libs vips"
+makedepends="nodejs npm git python3 make linux-headers gcc g++ py3-setuptools vips-dev"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/refs/tags/v$pkgver.tar.gz
         seerr.initd
