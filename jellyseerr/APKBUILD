@@ -11,6 +11,7 @@ subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/refs/tags/v$pkgver.tar.gz
         seerr.initd
         seerr.confd
+        seerr.pre-install
         seerr.wrapper
        "
        
@@ -23,6 +24,8 @@ build() {
     export PATH="$srcdir/npm-tmp/node_modules/.bin:$PATH"
 
     cd "$builddir"
+    sed -i 's/husky install//' package.json
+
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0
     
@@ -31,8 +34,8 @@ build() {
 
     rm -rf node_modules
           
-    pnpm install --prod --ignore-scripts --frozen-lockfile --no-optional
-    pnpm store prune                 
+    pnpm install --prod --frozen-lockfile --no-optional
+    pnpm store prune
     rm -rf src server charts gen-docs docs .next/cache
 
     # Remove broken symlinks (src nix package)
