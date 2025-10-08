@@ -43,7 +43,7 @@ package() {
     install -dm755 "$pkgdir/etc/seerr"
 
     cd "$builddir"
-    cp -aL .next dist public node_modules \
+    cp -a .next dist public node_modules \
         package.json jellyseerr-api.yml next.config.js \
         "${pkgdir}/usr/lib/seerr"
 
