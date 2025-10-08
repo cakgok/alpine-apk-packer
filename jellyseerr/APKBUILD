@@ -13,9 +13,9 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/ref
         seerr.confd
         seerr.pre-install
         seerr.wrapper
-        seerr-modernize.patch
+        seerr-modernize.patch 
        "
-       
+#check arch package for patch details       
 pkgusers="seerr"
 pkggroups="seerr"   
 options="!check !tracedeps"
@@ -45,7 +45,7 @@ package() {
     cd "$builddir"
     cp -aL .next dist public node_modules \
         package.json jellyseerr-api.yml next.config.js \
-        "${pkgdir}/usr/lib/jellyseerr"
+        "${pkgdir}/usr/lib/seerr"
 
     rm -rf "$app_dir/.next/cache"
     find "$app_dir" -name '*.map' -type f -delete
