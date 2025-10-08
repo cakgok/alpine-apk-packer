@@ -5,7 +5,7 @@ pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/seerr-team/seerr"
 arch="x86_64"
 license="MIT"
-depends="nodejs"
+depends="nodejs sqlite-libs"
 makedepends="nodejs npm git python3 make linux-headers"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/refs/tags/v$pkgver.tar.gz
@@ -37,10 +37,10 @@ build() {
     rm -rf src server charts gen-docs docs .next/cache
 
     # Remove broken symlinks (src nix package)
-    find node_modules -type l -exec sh -c 'test ! -e "$0" && rm -- "$0"' {} \;
+    #find node_modules -type l -exec sh -c 'test ! -e "$0" && rm -- "$0"' {} \;
 
-    find node_modules -type f \( -name '*.md' -o -name '*.ts' -o -name '*.tsx' -o -name 'LICENSE*' -o -name 'CHANGELOG*' -o -name 'README*' \) -delete
-    find node_modules -type d \( -name test -o -name tests -o -name docs -o -name examples -o -name coverage -o -name '.github' \) -exec rm -rf {} + 2>/dev/null || true
+    #find node_modules -type f \( -name '*.md' -o -name '*.ts' -o -name '*.tsx' -o -name 'LICENSE*' -o -name 'CHANGELOG*' -o -name 'README*' \) -delete
+    #find node_modules -type d \( -name test -o -name tests -o -name docs -o -name examples -o -name coverage -o -name '.github' \) -exec rm -rf {} + 2>/dev/null || true
     
 }
 
@@ -58,9 +58,6 @@ package() {
 
     rm -rf "$app_dir/.next/cache"
     find "$app_dir" -name '*.map' -type f -delete
-
-#    find "$app_dir/node_modules" \
-#        \( -path '*/sharp/**' -o -path '*/ffmpeg-static/**' \) ! -path '*linux-x64-musl*' -type f -delete
     
     install -Dm755 "$srcdir/$pkgname.wrapper" "$pkgdir/usr/bin/seerr"
     install -Dm755 "$srcdir/$pkgname.initd"   "$pkgdir/etc/init.d/$pkgname"
