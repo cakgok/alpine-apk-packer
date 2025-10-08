@@ -6,7 +6,7 @@ url="https://github.com/seerr-team/seerr"
 arch="x86_64"
 license="MIT"
 depends="nodejs sqlite-libs"
-makedepends="nodejs npm git python3 make linux-headers gcc g++"
+makedepends="nodejs npm git python3 make linux-headers gcc g++ py3-setuptools"
 subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/refs/tags/v$pkgver.tar.gz
         seerr.initd
@@ -16,7 +16,7 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/ref
        "
        
 pkgusers="seerr"
-pkggroups="seerr"
+pkggroups="seerr"   
 options="!check !tracedeps"
 
 build() {
