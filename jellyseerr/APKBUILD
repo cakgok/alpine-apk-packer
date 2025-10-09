@@ -1,6 +1,6 @@
 pkgname=seerr
 pkgver=2.7.3
-pkgrel=0
+pkgrel=1
 pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/seerr-team/seerr"
 arch="x86_64"

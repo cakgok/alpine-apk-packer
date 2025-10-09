@@ -21,14 +21,3 @@
    "config": {
      "commitizen": {
        "path": "./node_modules/cz-conventional-changelog"
---- a/server/index.ts
-+++ b/server/index.ts
-@@ -162,7 +162,7 @@ app
-       }
-     });
-     if (settings.network.csrfProtection) {
--      server.use(
-+      server.use(() =>
-         csurf({
-           cookie: {
-             httpOnly: true,
