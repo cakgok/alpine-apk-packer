@@ -1,0 +1,46 @@
+pkgname=scraparr
+pkgver=2.2.0
+pkgrel=0
+pkgdesc="Scraparr - Prometheus for your download clients"
+url="https://scraparr.media"
+arch="x86_64"
+license="GPL-3.0-or-later"
+depends="
+  python3
+  py3-requests
+  py3-werkzeug
+  py3-dateutil
+  py3-yaml
+  py3-dotenv
+  py3-prometheus-client
+"
+options="!check"
+
+pkgusers="scraparr"
+pkggroups="scraparr"
+subpackages="$pkgname-openrc::x86_64"
+install="$pkgname.pre-install"
+
+source="$pkgname-$pkgver.zip::https://github.com/thecfu/scraparr/archive/refs/tags/v$pkgver.zip
+  scraparr.confd
+  scraparr.initd
+  scraparr.wrapper
+  scraparr.pre-install
+"
+
+package() {
+    install -dm755 "$pkgdir/usr/lib/scraparr"
+    install -dm755 "$pkgdir/usr/bin"
+
+    cp -a "$srcdir/src" "$pkgdir/usr/lib/scraparr/"
+
+    install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir"/usr/bin/$pkgname
+    install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
+    install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+}
+
+sha512sums="
+1
+2
+3
+"

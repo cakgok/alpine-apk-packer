@@ -1,0 +1,17 @@
+#!/sbin/openrc-run
+# /etc/init.d/scraparr
+
+name="Scraparr"
+description="Scraparr Daemon"
+
+command_user="${command_user:-scraparr:scraparr}"
+
+supervisor="supervise-daemon"
+command="/usr/bin/scraparr"
+respawn_delay=5
+respawn_max=10
+
+depend() {
+    need net
+    after firewall
+}

@@ -1,0 +1,53 @@
+# /etc/conf.d/scraparr
+# This file is sourced by the /etc/init.d/scraparr script and allows you
+# to override default settings.
+command_user="scraparr:scraparr"
+
+# --- General (optional) ---
+# GENERAL_ADDRESS=0.0.0.0
+# GENERAL_PORT=7100
+# GENERAL_PATH=/metrics
+
+# --- Auth (optional) ---
+# AUTH_USERNAME=user
+# AUTH_PASSWORD=pass
+# AUTH_TOKEN=token
+
+# --- Sonarr ---
+# SONARR_URL=http://sonarr:8989
+# SONARR_API_KEY=key
+# SONARR_ALIAS=sonarr
+# SONARR_API_VERSION=v3
+# SONARR_INTERVAL=30
+# SONARR_DETAILED=true
+
+# --- Radarr ---
+# RADARR_URL=http://radarr:7878
+# RADARR_API_KEY=key
+# RADARR_ALIAS=radarr
+# RADARR_API_VERSION=v3
+# RADARR_INTERVAL=30
+# RADARR_DETAILED=true
+
+# --- Prowlarr ---
+# PROWLARR_URL=http://prowlarr:9696
+# PROWLARR_API_KEY=key
+# PROWLARR_ALIAS=prowlarr
+# PROWLARR_API_VERSION=v1
+# PROWLARR_INTERVAL=30
+# PROWLARR_DETAILED=true
+
+# --- Bazarr ---
+# BAZARR_URL=http://bazarr:6767
+# BAZARR_API_KEY=key
+# BAZARR_ALIAS=bazarr
+# BAZARR_INTERVAL=30
+# BAZARR_DETAILED=true
+
+# --- Jellyseerr ---
+# JELLYSEERR_URL=http://jellyseerr:5055
+# JELLYSEERR_API_KEY=key
+# JELLYSEERR_ALIAS=jellyseerr
+# JELLYSEERR_INTERVAL=30
+# JELLYSEERR_DETAILED=true
+
