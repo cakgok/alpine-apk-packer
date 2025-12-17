@@ -1,5 +1,5 @@
 pkgname=stash
-pkgver=0.29.3
+pkgver=0.30.0
 pkgrel=0
 pkgdesc="An organizer for your porn, written in Go"
 url="https://github.com/stashapp/stash"
@@ -54,7 +54,7 @@ python() {
 }
 
 sha512sums="
-921483719e382111d5dd8959120aa95993a4941db5afe4c4da7a31788bf079b223e918d66afa5d0ebe9ec952a513413c764ab31903cadd2d17e88d0d092bf22e  stash-linux
+0e6b6a973043902c976749fe25b0d1f8dffa72aef92623571cb7d572017cdeb2bdbef90103c24e0b6eb90723b8eecb775b6c9db46154f8448065c0fe10e85d0b  stash-linux
 e32d97b55cc8cda7132d6a1f5669dbd505f7e0b70e35496182ffb32c4d3ced1f5908f83f8057cc0e60fbfe3d13a0593f70256d6ec1b3ba3a33dfcfe4ea27f7de  stash.initd
 81f10dcd7c7d51296a37cb0b422c1843aba7bd5eae2dbcf461d6f026c309d03f8995e427bd00409aec1dfee463e2f16b1aafaef66e67a649537501b4ffa231b1  stash.confd
 "
