@@ -1,5 +1,5 @@
 pkgname=seerr
-pkgver=3.1.1
+pkgver=3.2.0
 pkgrel=0
 pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/seerr-team/seerr"
@@ -56,7 +56,7 @@ package() {
 }
 
 sha512sums="
-aadbfd0e60a8b2482f20342815ea151969f2a2cf68da9b5f8bc46dbde071be4a69b33057441b6b841b718966a263e6233c44531fced74e36391b8ef89974bbc2  seerr-3.1.1.tar.gz
+0f33c44adbe71925d474c98e3482edb9495d4dbf6634ec8b5b7c18fccb1cbca56391ab550e2fd949dfc659aca6063511949d131fd7a04a000d41200af968d6aa  seerr-3.2.0.tar.gz
 9fcf1faf5513e9bcff5957ca11b131d697fcaa2a0e58d47fe7dea67ec8129451f855719bfb8a9e5e136bb9548274b3d09c5c45917df0320601d34a0fba8ddaee  seerr.initd
 c2ff307e692e162f24c56b099401a1f8e5ffc75adea4a4014d47a0713b9e60b25ebbeb6cce1ed7aff8305020dc93e137c632adbb3473e84294036a5c5e6e371d  seerr.confd
 b6fda90b71c3581095e9ec4e081e6e43d7bf2cb549454627a54dd8ff52a2a5eb0ad8a0d12791300f372dbcd11bf1a40d13b1034aa6b6d715aa32b875d15cf2e5  seerr.pre-install
