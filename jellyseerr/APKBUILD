@@ -13,30 +13,31 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/ref
         seerr.confd
         seerr.pre-install
         seerr.wrapper
-        seerr-modernize.patch 
        "
-#check arch package for patch details       
+#       seerr-modernize.patch
+
+#check arch package for patch details
 pkgusers="seerr"
-pkggroups="seerr"   
+pkggroups="seerr"
 options="!check !tracedeps"
 
 build() {
     cd "$builddir"
     sed -i 's/husky install//' package.json
-    
+
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0
-    
+
     pnpm install --frozen-lockfile --unsafe-perm
     pnpm build
     pnpm prune --prod --ignore-scripts
 
-    rm -rf src server charts gen-docs docs .next/cache    
+    rm -rf src server charts gen-docs docs .next/cache
 }
 
 package() {
     local app_dir="$pkgdir/usr/lib/$pkgname"
-    
+
     install -dm755 "$app_dir"
     install -dm755 "$pkgdir/var/lib/seerr"
     install -dm755 "$pkgdir/var/log/seerr"
@@ -49,7 +50,7 @@ package() {
 
     rm -rf "$app_dir/.next/cache"
     find "$app_dir" -name '*.map' -type f -delete
-    
+
     install -Dm755 "$srcdir/$pkgname.wrapper" "$pkgdir/usr/bin/seerr"
     install -Dm755 "$srcdir/$pkgname.initd"   "$pkgdir/etc/init.d/$pkgname"
     install -Dm644 "$srcdir/$pkgname.confd"   "$pkgdir/etc/conf.d/$pkgname"
