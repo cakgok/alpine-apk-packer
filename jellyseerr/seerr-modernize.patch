@@ -1,14 +1,20 @@
 --- a/package.json
 +++ b/package.json
-@@ -184,7 +184,7 @@
+@@ -184,6 +184,17 @@
    "engines": {
 -    "node": "^22.19.0",
 +    "node": ">=22.19.0",
      "pnpm": "^10.0.0"
    },
-   "pnpm": {
-     "onlyBuiltDependencies": [
-       "sqlite3",
-       "bcrypt"
-     ]
-   },
++  "overrides": {
++    "sqlite3/node-gyp": "8.4.1",
++    "@types/express-session": "1.17.6",
++    "ace-builds": "1.15.2"
++  },
++  "pnpm": {
++    "onlyBuiltDependencies": [
++      "sqlite3",
++      "bcrypt"
++    ]
++  },
+   "config": {

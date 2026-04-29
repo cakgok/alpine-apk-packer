@@ -13,20 +13,29 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/ref
         seerr.confd
         seerr.pre-install
         seerr.wrapper
-        seerr-modernize.patch
        "
+
+#       seerr-modernize.patch
+
 
 #check arch package for patch details
 pkgusers="seerr"
 pkggroups="seerr"
 options="!check !tracedeps"
 
-build() {
+prepare() {
+    default_prepare
     cd "$builddir"
     sed -i 's/husky install//' package.json
+    echo "{\"commitTag\": \"$pkgver\"}" > committag.json
+}
+
+build() {
+    cd "$builddir"
 
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0
+    export SHARP_IGNORE_GLOBAL_LIBVIPS=1
 
     pnpm install --frozen-lockfile --unsafe-perm
     pnpm build
@@ -48,8 +57,51 @@ package() {
         package.json jellyseerr-api.yml next.config.js \
         "${pkgdir}/usr/lib/seerr"
 
-    rm -rf "$app_dir/.next/cache"
-    find "$app_dir" -name '*.map' -type f -delete
+
+    # Cleanup
+    # Remove build cache
+	rm -rf "$pkgdir/usr/lib/seerr/.next/cache"
+	rm -rf "$pkgdir/usr/lib/seerr/node_modules/.cache"
+
+	cd "$pkgdir/usr/lib/seerr"
+
+	# Remove Source Maps (Pure debugging files, 100% safe)
+	find . -name "*.map" -type f -delete
+
+	# Remove Foreign Architectures (Keep 'musl', Remove 'gnu'/'glibc')
+	find node_modules -type d -name "*-gnu*" -exec rm -rf {} +
+	find node_modules -type d -name "*linuxgnu*" -exec rm -rf {} +
+
+	# Remove Windows/macOS/Mobile artifacts
+	find node_modules -type d -name "*darwin*" -exec rm -rf {} +
+	find node_modules -type d -name "*win32*" -exec rm -rf {} +
+	find node_modules -type d -name "*android*" -exec rm -rf {} +
+	find node_modules -type f \( -name "*.dylib" -o -name "*.dll" -o -name "*.exe" \) -delete
+
+	# Remove TypeScript / Types
+	find node_modules -type d -name "typescript" -exec rm -rf {} +
+	find node_modules -type f \( -name "*.d.ts" -o -name "*.flow" \) -delete
+
+	# Remove C/C++ Source files (They are already compiled)
+	find node_modules -type f \( -name "*.cc" -o -name "*.h" -o -name "*.c" -o -name "*.cpp" \) -delete
+
+    # SWC build-time binaries (~175MB)
+    find "$app_dir/node_modules" -type d \( \
+        -name '@next+swc-linux-x64-gnu*' -o \
+        -name '@swc+core-linux-x64-gnu*' -o \
+        -name 'swc-linux-x64-gnu' -o \
+        -name 'core-linux-x64-gnu' \) -exec rm -rf {} +
+
+	# Remove Docs & Tests
+	find node_modules -type d -name "test" -exec rm -rf {} +
+	find node_modules -type d -name "__tests__" -exec rm -rf {} +
+
+	# Fix NextJS internal paths so they don't point to the temporary build folder
+	find .next -type f -print0 | xargs -0 sed -i "s^$srcdir/$pkgname-$pkgver^/usr/lib/seerr^g"
+
+
+    # rm -rf "$app_dir/.next/cache"
+    # find "$app_dir" -name '*.map' -type f -delete
 
     install -Dm755 "$srcdir/$pkgname.wrapper" "$pkgdir/usr/bin/seerr"
     install -Dm755 "$srcdir/$pkgname.initd"   "$pkgdir/etc/init.d/$pkgname"
