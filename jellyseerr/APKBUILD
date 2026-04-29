@@ -16,8 +16,6 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/ref
         seerr-modernize.patch
 "
 
-
-
 #check arch package for patch details
 pkgusers="seerr"
 pkggroups="seerr"
@@ -54,7 +52,7 @@ package() {
 
     cd "$builddir"
     cp -a .next dist public node_modules \
-        package.json jellyseerr-api.yml next.config.js \
+        package.json seerr-api.yml next.config.js \
         "${pkgdir}/usr/lib/seerr"
 
 
