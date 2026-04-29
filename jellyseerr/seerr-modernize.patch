@@ -1,0 +1,14 @@
+--- a/package.json
++++ b/package.json
+@@ -184,7 +184,7 @@
+   "engines": {
+-    "node": "^22.19.0",
++    "node": ">=22.19.0",
+     "pnpm": "^10.0.0"
+   },
+   "pnpm": {
+     "onlyBuiltDependencies": [
+       "sqlite3",
+       "bcrypt"
+     ]
+   },

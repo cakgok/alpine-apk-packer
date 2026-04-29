@@ -10,7 +10,7 @@ depends="
   py3-setuptools
   py3-apscheduler
   py3-cryptography
-  py3-openssl         
+  py3-openssl
 "
 makedepends=""
 subpackages="$pkgname-openrc::x86_64"
@@ -19,7 +19,7 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/Tautulli/Tautulli/archive/v$
 	tautulli.confd
   tautulli.wrapper
 	"
-  
+
 install="$pkgname.pre-install"
 pkgusers="tautulli"
 pkggroups="tautulli"
@@ -31,7 +31,11 @@ package() {
     install -dm755 "$pkgdir/usr/bin"
     install -dm755 "$pkgdir/var/lib/tautulli"
   	install -dm755 "$pkgdir/var/log/tautulli"
-	  install -dm755 "$pkgdir/etc/tautulli"
+	install -dm755 "$pkgdir/etc/tautulli"
+
+    rm -rf "$pkgdir/usr/lib/tautulli/lib/apscheduler"
+    rm -rf "$pkgdir/usr/lib/tautulli/lib/cryptography"
+    rm -rf "$pkgdir/usr/lib/tautulli/lib/OpenSSL"
 
     cp -a "$builddir"/. "$pkgdir/usr/lib/tautulli/"
 
