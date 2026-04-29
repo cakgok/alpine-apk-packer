@@ -13,9 +13,9 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/ref
         seerr.confd
         seerr.pre-install
         seerr.wrapper
-       "
+        seerr-modernize.patch
+"
 
-#       seerr-modernize.patch
 
 
 #check arch package for patch details
