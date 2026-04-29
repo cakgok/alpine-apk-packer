@@ -19,7 +19,7 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/ref
 #check arch package for patch details
 pkgusers="seerr"
 pkggroups="seerr"
-options="!check !tracedeps"
+options="!check !tracedeps !strip !debug"
 
 prepare() {
     default_prepare
@@ -33,7 +33,7 @@ build() {
 
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0
-    # export SHARP_IGNORE_GLOBAL_LIBVIPS=1
+    export SHARP_IGNORE_GLOBAL_LIBVIPS=1
 
     pnpm install --frozen-lockfile --unsafe-perm
     pnpm build
