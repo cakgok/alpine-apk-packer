@@ -29,8 +29,6 @@ makedepends="
     unzip
     "
 
-options="!check"
-
 pkgusers="bazarr"
 pkggroups="bazarr"
 subpackages="$pkgname-openrc::x86_64"
@@ -71,6 +69,19 @@ build() {
         "webrtcvad-wheels>=2.0.14"
         # webrtcvad actually in edge/testing, consider moving it into depeneds
         # and get rid of 2-step pip install
+}
+
+check() {
+    # Bazarr bundles this dependency. Import it explicitly so removed Python
+    # APIs such as pkg_resources fail the package build instead of startup.
+    if grep -Rq 'from pkg_resources import' \
+        "$srcdir/app-source/libs/python_anticaptcha"; then
+        error "bundled python_anticaptcha still imports removed pkg_resources APIs"
+        return 1
+    fi
+
+    PYTHONPATH="$srcdir/app-source/libs" \
+        python3 -c 'import python_anticaptcha'
 }
 
 package() {

@@ -3,6 +3,7 @@ set -e
 
 APP_NAME="$1"
 NEW_VERSION="$2"
+ALPINE_VERSION="${ALPINE_VERSION:-3.22}"
 
 if [[ -z "$NEW_VERSION" ]]; then
   echo "Error: A new version number must be provided as the first argument."
@@ -19,7 +20,7 @@ sed -Ei \
 
 docker run --rm \
   -v "$PWD/${APP_NAME}":/work -w /work \
-  alpine:edge sh -euo pipefail -c '
+  "alpine:${ALPINE_VERSION}" sh -euo pipefail -c '
     apk add --no-cache alpine-sdk
     adduser -D builder
     addgroup builder abuild

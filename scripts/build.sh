@@ -6,11 +6,13 @@ for var in APP_NAME TARGET_ARCH KEY_NAME PRIVATE_KEY; do
   [[ -z "${!var:-}" ]] && { echo "::error::$var is not set"; exit 1; }
 done
 
+ALPINE_VERSION="${ALPINE_VERSION:-3.22}"
 SRC_DIR="${PWD}/${APP_NAME}"
 OUT_DIR="${SRC_DIR}/out"
 mkdir -p "${OUT_DIR}"
 
 echo "🔧 Building ${APP_NAME} for ${TARGET_ARCH}"
+echo "🐧 Alpine version: ${ALPINE_VERSION}"
 echo "📦 Output directory: ${OUT_DIR}"
 
 #Run the build inside a Docker container
@@ -20,7 +22,7 @@ docker run --rm \
   -e "PRIVATE_KEY=${PRIVATE_KEY}" \
   -e "KEY_NAME=${KEY_NAME}" \
   -e "TARGET_ARCH=${TARGET_ARCH}" \
-  alpine:edge sh -euxo pipefail -c '
+  "alpine:${ALPINE_VERSION}" sh -euxo pipefail -c '
     apk update
     apk add --no-cache alpine-sdk sudo openssl
 
