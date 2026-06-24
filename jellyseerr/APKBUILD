@@ -52,7 +52,7 @@ package() {
 
     cd "$builddir"
     cp -a .next dist public node_modules \
-        package.json seerr-api.yml next.config.js \
+        package.json seerr-api.yml next.config.ts \
         "${pkgdir}/usr/lib/seerr"
 
 
