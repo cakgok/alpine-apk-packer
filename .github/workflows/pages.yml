@@ -3,7 +3,7 @@ name: Publish Repository
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Build All"]
+    workflows: ["Build All", "Build Single App"]
     types: [completed]
 
 jobs:

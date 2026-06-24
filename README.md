@@ -1,7 +1,11 @@
 # Alpine APK Packer Repository
 
-**Repo for some packages that can't go to aports**  
+**Repo for some packages that can't go to aports**
 📦 [https://cakgok.github.io/alpine-apk-packer/](https://cakgok.github.io/alpine-apk-packer/)
+
+This repository targets Alpine `edge` on `x86_64`. Packages containing Python
+extensions are tied to edge's current Python ABI and are not compatible with
+stable Alpine branches.
 
 ---
 

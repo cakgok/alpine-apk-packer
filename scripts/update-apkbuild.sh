@@ -3,7 +3,7 @@ set -e
 
 APP_NAME="$1"
 NEW_VERSION="$2"
-ALPINE_VERSION="${ALPINE_VERSION:-3.22}"
+ALPINE_VERSION="${ALPINE_VERSION:-edge}"
 
 if [[ -z "$NEW_VERSION" ]]; then
   echo "Error: A new version number must be provided as the first argument."
@@ -13,10 +13,14 @@ fi
 apkbuild_path="${APP_NAME}/APKBUILD"
 echo "Updating $apkbuild_path to version $NEW_VERSION"
 
-sed -Ei \
-  -e "s/^pkgver=.*/pkgver=${NEW_VERSION}/" \
-  -e "s/^pkgrel=.*/pkgrel=0/" \
-  "$apkbuild_path"
+CURRENT_VERSION=$(sed -n 's/^pkgver=//p' "$apkbuild_path")
+
+sed -Ei -e "s/^pkgver=.*/pkgver=${NEW_VERSION}/" "$apkbuild_path"
+if [[ "$CURRENT_VERSION" != "$NEW_VERSION" ]]; then
+  sed -Ei -e "s/^pkgrel=.*/pkgrel=0/" "$apkbuild_path"
+else
+  echo "Package version is unchanged; preserving pkgrel."
+fi
 
 docker run --rm \
   -v "$PWD/${APP_NAME}":/work -w /work \

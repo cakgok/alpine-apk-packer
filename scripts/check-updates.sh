@@ -32,14 +32,25 @@ if [[ -z "$latest_tag" ]]; then
 fi
 
 expected_tag="${APP_NAME}-v${latest_tag}"
-echo "Latest upstream version is: $latest_tag"
-echo "Checking if our release tag '$expected_tag' already exists..."
+package_name=$(sed -n 's/^pkgname=//p' "$apkbuild_path")
+package_version=$(sed -n 's/^pkgver=//p' "$apkbuild_path")
+package_revision=$(sed -n 's/^pkgrel=//p' "$apkbuild_path")
 
-if gh release view "$expected_tag" >/dev/null 2>&1; then
-  echo "✔ Release '$expected_tag' already exists. No update needed."
+if [[ "$package_version" == "$latest_tag" ]]; then
+  expected_asset="${package_name}-${latest_tag}-r${package_revision}.apk"
+else
+  expected_asset="${package_name}-${latest_tag}-r0.apk"
+fi
+
+echo "Latest upstream version is: $latest_tag"
+echo "Checking for package asset '$expected_asset' in release '$expected_tag'..."
+
+if gh release view "$expected_tag" --json assets --jq '.assets[].name' 2>/dev/null |
+    grep -Fxq "$expected_asset"; then
+  echo "✔ Package asset '$expected_asset' already exists. No update needed."
   echo "has_updates=false" >> "$GITHUB_OUTPUT"
 else
-  echo "→ New version found! Release '$expected_tag' is missing and needs to be built."
+  echo "→ Package asset '$expected_asset' is missing and needs to be built."
   echo "has_updates=true" >> "$GITHUB_OUTPUT"
   echo "new_version=${latest_tag}" >> "$GITHUB_OUTPUT"
 fi
