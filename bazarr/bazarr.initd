@@ -9,7 +9,7 @@ command_user="${command_user:-bazarr:bazarr}"
 
 supervisor="supervise-daemon"
 command="/usr/bin/bazarr"
-command_args="-c ${directory}"
+command_args="-c ${directory} --no-update"
 respawn_delay=5
 respawn_max=10
 

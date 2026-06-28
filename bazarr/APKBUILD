@@ -1,13 +1,13 @@
 pkgname=bazarr
 pkgver=1.5.6
-pkgrel=1
+pkgrel=2
 pkgdesc="Bazarr – companion app for Sonarr/Radarr that fetches subtitles"
 url="https://bazarr.media"
 arch="x86_64"
 license="GPL-3.0-or-later"
 
 depends="
-    7zip 
+    7zip
     ffmpeg
     mediainfo
     python3
@@ -89,9 +89,9 @@ package() {
     install -dm755 "$pkgdir/usr/lib/bazarr"
     install -dm755 "$pkgdir/usr/bin"
     install -dm755 "$pkgdir/var/lib/bazarr"
-    
+
     cp -a "$srcdir/app-source"/. "$pkgdir/usr/lib/bazarr/"
-    
+
     pip install \
         --break-system-packages \
         --no-deps --no-cache-dir --no-index \
@@ -101,7 +101,7 @@ package() {
 
     PYTHONPATH="$pkgdir/usr/lib/python$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')/site-packages" \
         python3 -c 'import webrtcvad'
-        
+
     install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir"/usr/bin/$pkgname
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
     install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname

@@ -1,3 +1,52 @@
 #!/bin/sh
-cd /usr/lib/bazarr
-exec /usr/bin/python3 bazarr.py "$@"
+cd /usr/lib/bazarr || exit 1
+
+PID=
+STOP_TIMEOUT="${BAZARR_STOP_TIMEOUT:-30}"
+
+case "$STOP_TIMEOUT" in
+    ''|*[!0-9]*) STOP_TIMEOUT=30 ;;
+esac
+
+wait_for_exit() {
+    timeout="$1"
+
+    while [ "$timeout" -gt 0 ]; do
+        if [ -n "$PID" ] && ! kill -0 "$PID" 2>/dev/null; then
+            return 0
+        fi
+
+        sleep 1
+        timeout=$((timeout - 1))
+    done
+
+    return 1
+}
+
+stop_bazarr() {
+    trap "" INT TERM
+    [ -z "$PID" ] && PID=$!
+    [ -z "$PID" ] && exit 0
+
+    # Bazarr handles Ctrl-C as a process-group shutdown: bazarr.py gets the
+    # interrupt and bazarr/main.py closes the webserver before writing stop state.
+    kill -INT 0 2>/dev/null || true
+
+    if ! wait_for_exit "$STOP_TIMEOUT"; then
+        kill -KILL 0 2>/dev/null || true
+    fi
+
+    if [ -n "$PID" ]; then
+        wait "$PID" 2>/dev/null || true
+    fi
+
+    exit 0
+}
+
+trap stop_bazarr INT TERM
+
+/usr/bin/python3 bazarr.py "$@" &
+PID=$!
+
+wait "$PID"
+exit $?
