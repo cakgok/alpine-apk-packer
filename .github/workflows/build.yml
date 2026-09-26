@@ -1,4 +1,4 @@
-name: Build-and-release          
+name: Build-and-release
 on:
   workflow_call:
     inputs:
@@ -9,7 +9,7 @@ on:
         required: true
         type: string
 
-concurrency:                              
+concurrency:
   group: apk-${{ inputs.APP }}
   cancel-in-progress: false
 
@@ -42,7 +42,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run:  bash ./scripts/check-updates.sh
-  
+
   update-apkbuild:
     needs: detect-updates
     if: needs.detect-updates.outputs.has_updates == 'true'
@@ -60,7 +60,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
         ref: main
-    
+
     - name: Pull latest changes
       run: git pull origin main
 
@@ -72,34 +72,35 @@ jobs:
     - name: Capture new SHA
       id: get_sha
       run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-  
+
   build-apk:
     needs: [detect-updates, update-apkbuild]
     if: needs.detect-updates.outputs.has_updates == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ needs.update-apkbuild.result == 'success' && needs.update-apkbuild.outputs.new_sha || github.ref }}        
+        ref: ${{ needs.update-apkbuild.result == 'success' && needs.update-apkbuild.outputs.new_sha || github.ref }}
         fetch-depth: 0
 
-    - name: Build APK 
+    - name: Build APK
       env:
         KEY_NAME: ${{ secrets.KEY_NAME }}
         PRIVATE_KEY: ${{ secrets.PACKAGER_PRIVKEY }}
         TARGET_ARCH: x86_64
         APP_NAME: ${{env.APP}}
       run: bash ./scripts/build.sh
-    
+
     - name: Upload ${{env.APP}} artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{env.APP}}-x86_64-apk
         path: ${{env.APP}}/out/
         retention-days: 30
-    
+        if-no-files-found: error
+
   create-releases:
     needs: [detect-updates, build-apk]
     if: needs.detect-updates.outputs.has_updates == 'true'
@@ -110,10 +111,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4           
+      uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0                   
+        fetch-depth: 0
 
     - name: Download ${{env.APP}} artifact
       uses: actions/download-artifact@v4
@@ -124,7 +125,7 @@ jobs:
     - name: Create GitHub release
       uses: softprops/action-gh-release@v2
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name:  ${{env.APP}}-v${{ needs.detect-updates.outputs.new_version }}
         name:      ${{env.APP}}-v${{ needs.detect-updates.outputs.new_version }} (Alpine x86_64)
@@ -132,13 +133,13 @@ jobs:
         prerelease: false
         files:     artifacts/*.apk
         body: |
-          Built automatically from upstream release:  
-          https://github.com/${{ env.UPSTREAM }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}  
+          Built automatically from upstream release:
+          https://github.com/${{ env.UPSTREAM }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}
 
     - name: Create or update latest release
       uses: softprops/action-gh-release@v2
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name:  ${{env.APP}}-latest
         name:      ${{env.APP}}-latest (Alpine x86_64)
@@ -148,11 +149,11 @@ jobs:
         make_latest: false
         body: |
           Latest build of ${{env.APP}}
-          
+
           This release is automatically updated to point to the newest version.
           Current version: v${{ needs.detect-updates.outputs.new_version }}
-          
-          Built from upstream release:  
+
+          Built from upstream release:
           https://github.com/${{ env.UPSTREAM }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}
 
     - name: Remove obsolete assets from latest release
@@ -181,7 +182,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VERSION_TAG:  ${{ env.APP }}-v${{ needs.detect-updates.outputs.new_version }}
         LATEST_TAG:   ${{ env.APP }}-latest
-        GH_PAT: ${{ secrets.GH_PAT }} 
+        GH_PAT: ${{ secrets.GH_PAT }}
       run: |
         set -euo pipefail
         git fetch --tags --force

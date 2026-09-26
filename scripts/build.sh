@@ -38,10 +38,10 @@ docker run --rm \
       mkdir -p ~/.abuild
       printf \"%s\n\" \"\${PRIVATE_KEY}\" > ~/.abuild/\${KEY_NAME}
       chmod 600 ~/.abuild/\${KEY_NAME}
-      
+
       openssl rsa -in ~/.abuild/\${KEY_NAME} -pubout -out ~/.abuild/\${KEY_NAME}.pub
       chmod 644 ~/.abuild/\${KEY_NAME}.pub
-      
+
       sudo cp ~/.abuild/\${KEY_NAME}.pub /etc/apk/keys/
       echo \"PACKAGER_PRIVKEY=\$HOME/.abuild/\${KEY_NAME}\" >> ~/.abuild/abuild.conf
 
@@ -51,16 +51,16 @@ docker run --rm \
       cat ~/.abuild/abuild.conf
 
       # Run the build
-      abuild -r
-      
+      abuild -r -P \$HOME/packages
+
       # Copy the built packages to the output directory
       echo \"📦 Copying packages to output directory...\"
       find ~/packages -name \"*.apk\" -type f -exec cp {} /out/ \; || echo \"No packages found to copy\"
-      
+
       # List what we copied
       echo \"📋 Files in output directory:\"
-      ls -la /out/ || echo \"Output directory is empty\"
+      ls /out/*.apk >/dev/null 2>&1 || { echo \"::error::abuild produced no .apk files\"; exit 1; }
     "
   '
-  
+
 echo "✅ Build complete. Artifacts now in ${OUT_DIR}"
