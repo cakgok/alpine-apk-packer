@@ -1,6 +1,6 @@
 pkgname=stash
 pkgver=0.31.1
-pkgrel=0
+pkgrel=1
 pkgdesc="An organizer for your porn, written in Go"
 url="https://github.com/stashapp/stash"
 arch="x86_64"
@@ -12,7 +12,7 @@ options="!check !strip"
 subpackages="$pkgname-openrc::x86_64 $pkgname-python::x86_64"
 
 install="$pkgname.pre-install"
-backup="etc/stash/config.yml" 
+backup="etc/stash/config.yml"
 
 source="
 	stash-linux::https://github.com/stashapp/stash/releases/download/v$pkgver/stash-linux
@@ -21,7 +21,7 @@ source="
 	"
 
 pkgusers="stash"
-pkggroups="stash" 
+pkggroups="stash"
 
 prepare() {
 	default_prepare
@@ -43,10 +43,11 @@ package() {
 
 python() {
     pkgdesc="Python runtime and pip for $pkgname plugins"
-	depends="python3 py3-pip py3-requests py3-requests-toolbelt py3-lxml py3-beautifulsoup4 py3-urllib3 py3-certifi py3-pyparsing"
+	depends="python3 py3-pip py3-requests py3-requests-toolbelt py3-lxml py3-beautifulsoup4 py3-urllib3 py3-certifi py3-parsing"
 
 	python3 -m pip install \
 		--root="$subpkgdir" --prefix=/usr \
+		--no-deps \
 		--no-cache-dir \
 		--disable-pip-version-check \
 		--break-system-packages \
