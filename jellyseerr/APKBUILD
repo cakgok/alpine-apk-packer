@@ -11,7 +11,6 @@ subpackages="$pkgname-openrc::x86_64"
 source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/refs/tags/v$pkgver.tar.gz
         seerr.initd
         seerr.confd
-        seerr.pre-install
         seerr.wrapper
         seerr-modernize.patch
 "
@@ -19,6 +18,7 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/seerr-team/seerr/archive/ref
 #check arch package for patch details
 pkgusers="seerr"
 pkggroups="seerr"
+install="$pkgname.pre-install"
 options="!check !tracedeps !strip !debug"
 
 prepare() {
@@ -110,7 +110,6 @@ sha512sums="
 b853de81168b1413917bbe4a0a511cf8e35a88aafe0395c4ce9a65fca6e376ba25e1e085e09ddcb332cf654f7b6803e2ff1b26d5c40ef6c57ccc709ba0588446  seerr-3.5.0.tar.gz
 9fcf1faf5513e9bcff5957ca11b131d697fcaa2a0e58d47fe7dea67ec8129451f855719bfb8a9e5e136bb9548274b3d09c5c45917df0320601d34a0fba8ddaee  seerr.initd
 c2ff307e692e162f24c56b099401a1f8e5ffc75adea4a4014d47a0713b9e60b25ebbeb6cce1ed7aff8305020dc93e137c632adbb3473e84294036a5c5e6e371d  seerr.confd
-b6fda90b71c3581095e9ec4e081e6e43d7bf2cb549454627a54dd8ff52a2a5eb0ad8a0d12791300f372dbcd11bf1a40d13b1034aa6b6d715aa32b875d15cf2e5  seerr.pre-install
 737c326e7945fe8c2decdff79aff4338a0c7b577fd8d144437626baee4911d7574fd80c2550e2b7d9b942e7a868315443dd51b7552d1256c415338ccabadb7de  seerr.wrapper
 9370f25a7d4cea64d0f49dd2e281e1361724e7a35f85c55d0cc3a151522ef1ad1b8e0adb69fef4303ad800502ee259e45c27c389085fc2ad2bde8eab567b12d5  seerr-modernize.patch
 "
