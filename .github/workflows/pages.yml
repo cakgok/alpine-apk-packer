@@ -8,18 +8,18 @@ on:
 
 jobs:
   publish-repository:
-    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || contains(fromJSON('["success","failure"]'), github.event.workflow_run.conclusion)
     runs-on: ubuntu-latest
     container: alpine:latest
     permissions:
-      contents: write 
+      contents: write
       pages: write
       id-token: write
 
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     steps:
     - name: Install abuild + apk-tools
       run: apk add --no-cache alpine-sdk apk-tools openssl tar gzip git curl jq bash abuild python3
@@ -31,12 +31,12 @@ jobs:
 
     - name: Create empty directory for the repository
       run: mkdir -p final_repo
-        
+
     - name: Restore package cache
       uses: actions/cache/restore@v4
       with:
         path: final_repo/main/x86_64
-        key: apk-packages-${{ github.run_number }} 
+        key: apk-packages-${{ github.run_number }}
         restore-keys: |
           apk-packages-
 
