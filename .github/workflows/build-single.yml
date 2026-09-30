@@ -53,6 +53,6 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       APP: jellyseerr
-      UPSTREAM: fallenbagel/jellyseerr
+      UPSTREAM: seerr-team/seerr
       FORCE_BUILD: ${{ inputs.force_build }}
     secrets: inherit
