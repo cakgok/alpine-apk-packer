@@ -185,11 +185,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VERSION_TAG:  ${{ env.APP }}-v${{ needs.detect-updates.outputs.new_version }}
         LATEST_TAG:   ${{ env.APP }}-latest
-        GH_PAT: ${{ secrets.GH_PAT }}
       run: |
         set -euo pipefail
         git fetch --tags --force
-        git tag -f "$LATEST_TAG" "$VERSION_TAG"
-        git push --force \
-        "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git" \
-        "refs/tags/${LATEST_TAG}"
+        git tag -f "$LATEST_TAG" "${VERSION_TAG}^{}"
+        git push --force origin "refs/tags/${LATEST_TAG}"
