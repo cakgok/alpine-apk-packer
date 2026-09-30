@@ -27,7 +27,6 @@ docker run --rm \
   "alpine:${ALPINE_VERSION}" sh -euxo pipefail -c '
     orig=$(stat -c %u:%g /work)
     trap "chown -R $orig /work /out" EXIT
-    apk update
     apk add --no-cache abuild sudo
 
     adduser -D builder
