@@ -1,6 +1,6 @@
 pkgname=bazarr
 pkgver=1.6.2
-pkgrel=0
+pkgrel=1
 pkgdesc="Bazarr – companion app for Sonarr/Radarr that fetches subtitles"
 url="https://bazarr.media"
 arch="x86_64"

@@ -1,6 +1,6 @@
 pkgname=seerr
 pkgver=3.5.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/seerr-team/seerr"
 arch="x86_64"
@@ -54,7 +54,6 @@ package() {
         package.json seerr-api.yml next.config.ts \
         "${pkgdir}/usr/lib/seerr"
 
-
     # Cleanup
     # Remove build cache
 	rm -rf "$pkgdir/usr/lib/seerr/.next/cache"
@@ -99,7 +98,6 @@ package() {
 
     # rm -rf "$app_dir/.next/cache"
     # find "$app_dir" -name '*.map' -type f -delete
-
     install -Dm755 "$srcdir/$pkgname.wrapper" "$pkgdir/usr/bin/seerr"
     install -Dm755 "$srcdir/$pkgname.initd"   "$pkgdir/etc/init.d/$pkgname"
     install -Dm644 "$srcdir/$pkgname.confd"   "$pkgdir/etc/conf.d/$pkgname"

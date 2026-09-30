@@ -1,6 +1,6 @@
 pkgname=stash
 pkgver=0.31.1
-pkgrel=1
+pkgrel=2
 pkgdesc="An organizer for your porn, written in Go"
 url="https://github.com/stashapp/stash"
 arch="x86_64"
@@ -14,7 +14,7 @@ subpackages="$pkgname-openrc::x86_64 $pkgname-python::x86_64"
 install="$pkgname.pre-install"
 
 source="
-	stash-linux::https://github.com/stashapp/stash/releases/download/v$pkgver/stash-linux
+	stash-linux-$pkgver::https://github.com/stashapp/stash/releases/download/v$pkgver/stash-linux
 	stash.initd
 	stash.confd
 	"
@@ -26,7 +26,7 @@ package() {
 	install -dm755 "$pkgdir/var/lib/stash"
 	install -dm755 "$pkgdir/var/log/stash"
 
-	install -Dm755 "$srcdir"/stash-linux "$pkgdir"/usr/bin/stash
+	install -Dm755 "$srcdir"/stash-linux-$pkgver "$pkgdir"/usr/bin/stash
 	install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
 	install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
 }
