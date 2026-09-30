@@ -48,7 +48,6 @@ package() {
     install -dm755 "$app_dir"
     install -dm755 "$pkgdir/var/lib/seerr"
     install -dm755 "$pkgdir/var/log/seerr"
-    install -dm755 "$pkgdir/etc/seerr"
 
     cd "$builddir"
     cp -a .next dist public node_modules \

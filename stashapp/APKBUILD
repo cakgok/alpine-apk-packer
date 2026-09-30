@@ -12,7 +12,6 @@ options="!check !strip"
 subpackages="$pkgname-openrc::x86_64 $pkgname-python::x86_64"
 
 install="$pkgname.pre-install"
-backup="etc/stash/config.yml"
 
 source="
 	stash-linux::https://github.com/stashapp/stash/releases/download/v$pkgver/stash-linux
@@ -23,18 +22,9 @@ source="
 pkgusers="stash"
 pkggroups="stash"
 
-prepare() {
-	default_prepare
-}
-
-build() {
-	true
-}
-
 package() {
 	install -dm755 "$pkgdir/var/lib/stash"
 	install -dm755 "$pkgdir/var/log/stash"
-	install -dm755 "$pkgdir/etc/stash"
 
 	install -Dm755 "$srcdir"/stash-linux "$pkgdir"/usr/bin/stash
 	install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
