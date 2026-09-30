@@ -25,7 +25,7 @@ fi
 docker run --rm \
   -v "$PWD/${APP_NAME}":/work -w /work \
   "alpine:${ALPINE_VERSION}" sh -euo pipefail -c '
-    apk add --no-cache alpine-sdk
+    apk add --no-cache abuild
     adduser -D builder
     addgroup builder abuild
     chown -R builder:abuild /work

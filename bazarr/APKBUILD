@@ -41,25 +41,16 @@ source="$pkgname-$pkgver.zip::https://github.com/morpheus65535/bazarr/releases/d
   bazarr.wrapper
 "
 
-prepare() {
-    # Isolate the unpacked contents
-    mkdir -p "$srcdir/unpacked"
-    unzip -q "$srcdir/$pkgname-$pkgver.zip" -d "$srcdir/unpacked"
-    # Find the actual root of the source code
-    local _app_root="$srcdir/unpacked"
-    cd "$_app_root"
-    # Check if there's a nested zip
-    set -- *
-    if [ $# -eq 1 ] && [ -d "$1" ]; then
-        _app_root="$_app_root/$1"
-    fi
-    # Create clean folder for the app src
-    mkdir -p "$srcdir/app-source"
-    # Copy only the app files into the dir
-    cp -a "$_app_root/." "$srcdir/app-source/"
-    # Clean up
-    cd "$srcdir"
-    rm -rf "$srcdir/unpacked"
+# bazarr's zip has no top-level folder, it contains bazarr.py libs frontend … directly.
+# extract once, into the right place, instead of woorking around it in prepare()
+unpack() {
+    mkdir -p "$builddir"
+    unzip -q "$srcdir/$pkgname-$pkgver.zip" -d "$builddir"
+
+    tar -xzf "$srcdir/webrtcvad-wheels-2.0.14.tar.gz" -C "$srcdir"
+
+    # If upstream ever changes the zip to have a top-level folder, fail loudly
+    [ -f "$builddir/bazarr.py" ] || die "unexpected zip layout"
 }
 
 build() {
@@ -76,12 +67,12 @@ check() {
     # Bazarr bundles this dependency. Import it explicitly so removed Python
     # APIs such as pkg_resources fail the package build instead of startup.
     if grep -Rq 'from pkg_resources import' \
-        "$srcdir/app-source/libs/python_anticaptcha"; then
+        "$builddir/libs/python_anticaptcha"; then
         error "bundled python_anticaptcha still imports removed pkg_resources APIs"
         return 1
     fi
 
-    PYTHONPATH="$srcdir/app-source/libs" \
+    PYTHONPATH="$builddir/libs" \
         python3 -c 'import python_anticaptcha'
 }
 
@@ -90,7 +81,7 @@ package() {
     install -dm755 "$pkgdir/usr/bin"
     install -dm755 "$pkgdir/var/lib/bazarr"
 
-    cp -a "$srcdir/app-source"/. "$pkgdir/usr/lib/bazarr/"
+    cp -a "$builddir"/. "$pkgdir/usr/lib/bazarr/"
 
     pip install \
         --break-system-packages \

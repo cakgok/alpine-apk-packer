@@ -16,6 +16,8 @@ echo "🐧 Alpine version: ${ALPINE_VERSION}"
 echo "📦 Output directory: ${OUT_DIR}"
 
 #Run the build inside a Docker container
+# orig=... reads the numeric owner of the mounted folder as the container sees it
+# trap .. means "run this when the script exits, for any reason". That includes set -e aborting after a failed build
 docker run --rm \
   -v "${SRC_DIR}":/work \
   -v "${OUT_DIR}":/out \
@@ -23,8 +25,10 @@ docker run --rm \
   -e "KEY_NAME=${KEY_NAME}" \
   -e "TARGET_ARCH=${TARGET_ARCH}" \
   "alpine:${ALPINE_VERSION}" sh -euxo pipefail -c '
+    orig=$(stat -c %u:%g /work)
+    trap "chown -R $orig /work /out" EXIT
     apk update
-    apk add --no-cache alpine-sdk sudo openssl
+    apk add --no-cache abuild sudo
 
     adduser -D builder
     addgroup builder abuild
