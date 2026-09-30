@@ -8,6 +8,10 @@ on:
       UPSTREAM:
         required: true
         type: string
+      FORCE_BUILD:
+        description: 'Build even if no new version (test build, no release)'
+        type: boolean
+        default: false
 
 concurrency:
   group: apk-${{ inputs.APP }}
@@ -18,7 +22,6 @@ env:
   ALPINE_VERSION: "edge"
   APP:      ${{ inputs.APP }}
   UPSTREAM: ${{ inputs.UPSTREAM }}
-
 jobs:
   detect-updates:
     runs-on: ubuntu-latest
@@ -75,7 +78,7 @@ jobs:
 
   build-apk:
     needs: [detect-updates, update-apkbuild]
-    if: needs.detect-updates.outputs.has_updates == 'true' || github.event_name == 'workflow_dispatch'
+    if: ${{ !cancelled() && !failure() && (needs.detect-updates.outputs.has_updates == 'true' || inputs.FORCE_BUILD) }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
 

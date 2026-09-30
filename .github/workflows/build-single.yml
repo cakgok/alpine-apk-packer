@@ -1,4 +1,4 @@
-name: Build Single App          
+name: Build Single App
 on:
   workflow_dispatch:
     inputs:
@@ -11,6 +11,10 @@ on:
             - stashapp
             - tautulli
             - jellyseerr
+        force_build:
+          description: 'Build even if no new version (test build, no release)'
+          type: boolean
+          default: false
 
 permissions:
   contents: write
@@ -23,7 +27,8 @@ jobs:
     with:
       APP: bazarr
       UPSTREAM: morpheus65535/bazarr
-    secrets: inherit     
+      FORCE_BUILD: ${{ inputs.force_build }}
+    secrets: inherit
 
   stashapp:
     if: github.event.inputs.app_to_build == 'stashapp'
@@ -31,7 +36,8 @@ jobs:
     with:
       APP: stashapp
       UPSTREAM: stashapp/stash
-    secrets: inherit     
+      FORCE_BUILD: ${{ inputs.force_build }}
+    secrets: inherit
 
   tautulli:
     if: github.event.inputs.app_to_build == 'tautulli'
@@ -39,7 +45,8 @@ jobs:
     with:
       APP: tautulli
       UPSTREAM: tautulli/tautulli
-    secrets: inherit     
+      FORCE_BUILD: ${{ inputs.force_build }}
+    secrets: inherit
 
   jellyseerr:
     if: github.event.inputs.app_to_build == 'jellyseerr'
@@ -47,5 +54,5 @@ jobs:
     with:
       APP: jellyseerr
       UPSTREAM: fallenbagel/jellyseerr
+      FORCE_BUILD: ${{ inputs.force_build }}
     secrets: inherit
-
