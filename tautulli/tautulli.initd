@@ -4,6 +4,9 @@
 name="Tautulli"
 description="Tautulli Service"
 
+output_logger="logger -t tautulli -p daemon.info"
+error_logger="logger -t tautulli -p daemon.err"
+
 datadir="${datadir:-/var/lib/tautulli}"
 configdir="${configdir:-/etc/tautulli}"
 supervisor="supervise-daemon"
@@ -16,6 +19,7 @@ respawn_max=10
 
 depend() {
 	need net
+    use logger
 }
 
 start_pre() {

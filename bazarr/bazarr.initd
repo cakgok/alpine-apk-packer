@@ -7,6 +7,9 @@ description="Subtitle manager for Sonarr and Radarr"
 directory="${directory:-/var/lib/bazarr}"
 command_user="${command_user:-bazarr:bazarr}"
 
+output_logger="logger -t bazarr -p daemon.info"
+error_logger="logger -t bazarr -p daemon.err"
+
 supervisor="supervise-daemon"
 command="/usr/bin/bazarr"
 command_args="-c ${directory} --no-update"
@@ -16,11 +19,9 @@ respawn_max=10
 depend() {
     need net
     after firewall
+    use logger
 }
 
 start_pre() {
     checkpath --directory --mode 0755 --owner "${command_user}" "${directory}"
 }
-
-
-
