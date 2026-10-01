@@ -5,9 +5,6 @@ on:
       APP:
         required: true
         type: string
-      UPSTREAM:
-        required: true
-        type: string
       FORCE_BUILD:
         description: 'Build even if no new version (test build, no release)'
         type: boolean
@@ -21,7 +18,6 @@ env:
   TARGET_ARCH: x86_64
   ALPINE_VERSION: "edge"
   APP:      ${{ inputs.APP }}
-  UPSTREAM: ${{ inputs.UPSTREAM }}
 jobs:
   detect-updates:
     runs-on: ubuntu-latest
@@ -29,6 +25,7 @@ jobs:
     outputs:
       has_updates: ${{ steps.check-updates.outputs.has_updates }}
       new_version: ${{ steps.check-updates.outputs.new_version }}
+      upstream:    ${{ steps.lookup.outputs.upstream }}
 
     permissions:
       contents: read
@@ -38,10 +35,21 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
+    # look up upstream from apps.json instead of hardcoding it everytime
+    - name: Look up upstream repo
+      id: lookup
+      run: |
+        upstream=$(jq -r --arg app "$APP" '.[] | select(.app == $app) | .upstream' apps.json)
+        if [[ -z "$upstream" ]]; then
+          echo "::error::'$APP' not found in apps.json"; exit 1
+        fi
+        echo "upstream=$upstream" >> "$GITHUB_OUTPUT"
+
     - name: Check for app updates
       id: check-updates
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        UPSTREAM: ${{ steps.lookup.outputs.upstream }}          # then read the prveious steps output here
       run:  bash ./scripts/check-updates.sh
 
   update-apkbuild:
@@ -130,7 +138,7 @@ jobs:
         files:     artifacts/*.apk
         body: |
           Built automatically from upstream release:
-          https://github.com/${{ env.UPSTREAM }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}
+          https://github.com/${{ needs.detect-updates.outputs.upstream }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}
 
     - name: Create or update latest release
       uses: softprops/action-gh-release@v3
@@ -150,7 +158,7 @@ jobs:
           Current version: v${{ needs.detect-updates.outputs.new_version }}
 
           Built from upstream release:
-          https://github.com/${{ env.UPSTREAM }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}
+          https://github.com/${{ needs.detect-updates.outputs.upstream }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}
 
     - name: Remove obsolete assets from latest release
       env:

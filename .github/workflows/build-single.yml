@@ -20,38 +20,9 @@ permissions:
   contents: write
 
 jobs:
-  bazarr:
-    if: github.event.inputs.app_to_build == 'bazarr'
+  app:
     uses: ./.github/workflows/build.yml
     with:
-      APP: bazarr
-      UPSTREAM: morpheus65535/bazarr
-      FORCE_BUILD: ${{ inputs.force_build }}
-    secrets: inherit
-
-  stashapp:
-    if: github.event.inputs.app_to_build == 'stashapp'
-    uses: ./.github/workflows/build.yml
-    with:
-      APP: stashapp
-      UPSTREAM: stashapp/stash
-      FORCE_BUILD: ${{ inputs.force_build }}
-    secrets: inherit
-
-  tautulli:
-    if: github.event.inputs.app_to_build == 'tautulli'
-    uses: ./.github/workflows/build.yml
-    with:
-      APP: tautulli
-      UPSTREAM: tautulli/tautulli
-      FORCE_BUILD: ${{ inputs.force_build }}
-    secrets: inherit
-
-  jellyseerr:
-    if: github.event.inputs.app_to_build == 'jellyseerr'
-    uses: ./.github/workflows/build.yml
-    with:
-      APP: jellyseerr
-      UPSTREAM: seerr-team/seerr
+      APP: ${{ inputs.app_to_build }}
       FORCE_BUILD: ${{ inputs.force_build }}
     secrets: inherit

@@ -30,5 +30,4 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       APP: ${{ matrix.app }}
-      UPSTREAM: ${{ matrix.upstream }}
     secrets: inherit
