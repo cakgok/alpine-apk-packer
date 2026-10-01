@@ -22,6 +22,16 @@ HDR=("-H" "Accept: application/vnd.github+json")
 
 mkdir -p "$ARCH_DIR"
 
+# check the current manifest, only update if they are changes
+want=$(wanted_manifest)
+live=$(curl -sfL "https://${OWNER,,}.github.io/${REPO}/manifest.txt" || true)
+
+if [[ $want == "$live" && $FORCE_REINDEX == false ]]; then
+    echo "✅ Repository is up-to-date. No changes detected."
+    echo "reindex=false" >> "$GITHUB_OUTPUT"
+    exit 0
+fi
+
 # Since we release as app-latest as a moving tag
 get_release() {
   curl -sfL --retry 3 --retry-delay 2 "${HDR[@]}" \
@@ -60,6 +70,36 @@ contains_item() {
   return 1
 }
 
+die() {
+    echo "::error::$*" >&2;
+    exit 1;
+}
+
+# From one release's JSON (on stdin), print "name size digest" for each APK of version $1.
+apk_lines_for_version() {
+  jq -r --arg v "$1" '
+    .assets[]
+    | select(.name | endswith(".apk"))
+    | select(.name | contains("-\($v)-r"))
+    | "\(.name) \(.size) \(.digest)"
+  '
+}
+
+wanted_manifest() {
+    for app in "${APPS[@]}"; do
+        if ! release=$(get_release "$app-latest"); then
+            die "cannot read release $app-latest"
+        fi
+
+        version=$(get_release_version <<<"$release")
+        if [[ -z $version ]]; then
+            die "no version in $app-latest"
+        fi
+
+        apk_lines_for_version "$version" <<<"$release"
+    done | sort
+}
+
 for APP in "${APPS[@]}"; do
     echo "--- $APP ---"
     TAG="${APP}-latest"
@@ -67,7 +107,7 @@ for APP in "${APPS[@]}"; do
     rel_json=$(get_release "$TAG" || true)
     if [[ -z $rel_json ]]; then
         echo "⚠️  release $TAG not found"
-        continue
+        exit 1
     fi
 
     RELEASE_VERSION=$(get_release_version <<<"$rel_json")
@@ -93,13 +133,8 @@ for APP in "${APPS[@]}"; do
         APK_FOUND=true
         CURRENT_APKS+=("$APK_NAME")
 
-        if [[ -f "$ARCH_DIR/$APK_NAME" ]]; then
-            echo "✅  $APK_NAME (cached)"
-        else
-            NEEDS_REINDEX=true
-            echo "⬇️  downloading $APK_NAME"
-            curl -sfL --retry 3 --retry-delay 2 -o "$ARCH_DIR/$APK_NAME" "$APK_URL"
-        fi
+        echo "⬇️  downloading $APK_NAME"
+        curl -sfL --retry 3 --retry-delay 2 -o "$ARCH_DIR/$APK_NAME" "$APK_URL"
 
         APK_ORIGIN=$(get_apk_field "$ARCH_DIR/$APK_NAME" origin)
         APK_VERSION=$(get_apk_field "$ARCH_DIR/$APK_NAME" pkgver)
@@ -131,19 +166,6 @@ for APP in "${APPS[@]}"; do
             exit 1
         fi
     done
-
-    # Clean once after every current asset is present. Cleaning inside the
-    # download loop removes sibling subpackages such as bazarr-openrc.
-    for old in "$ARCH_DIR"/*.apk; do
-        [[ -e $old ]] || continue
-        OLD_ORIGIN=$(get_apk_field "$old" origin)
-        contains_item "$OLD_ORIGIN" "${CURRENT_ORIGINS[@]}" || continue
-        contains_item "$(basename "$old")" "${CURRENT_APKS[@]}" && continue
-
-        NEEDS_REINDEX=true
-        echo "🗑️  removing $(basename "$old")"
-        rm -f -- "$old"
-    done
 done
 
 # Exit early if no changes detected and not forced
@@ -165,6 +187,32 @@ echo "Public key created at '$REPO_DIR/${KEY_NAME}.pub'."
 
 mkdir -p /etc/apk/keys/
 cp "$REPO_DIR/${KEY_NAME}.pub" /etc/apk/keys/
+
+# Print "name size digest" for one file, in the same format GitHub's API uses.
+manifest_line() {
+    local file=$1
+    local size hash
+    size=$(stat -c %s "$file")
+    hash=$(sha256sum "$file" | cut -d' ' -f1)
+    echo "$(basename "$file") $size sha256:$hash"
+}
+
+# Print the manifest of every APK in a folder, sorted.
+manifest_of_dir() {
+    for file in "$1"/*.apk; do
+        manifest_line "$file"
+    done | sort
+}
+
+have=$(manifest_of_dir "$ARCH_DIR")
+
+if [[ $have != "$want" ]]; then
+    echo "::error::downloaded files don't match the releases"
+    diff <(echo "$want") <(echo "$have") || true
+    exit 1
+fi
+
+echo "$have" > "$REPO_DIR/manifest.txt"
 
 # Generate and sign the index
 cd "$ARCH_DIR"
