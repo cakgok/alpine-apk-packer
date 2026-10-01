@@ -34,7 +34,7 @@ jobs:
       contents: read
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -56,7 +56,7 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
@@ -78,7 +78,7 @@ jobs:
     timeout-minutes: 120
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         ref: ${{ needs.update-apkbuild.result == 'success' && needs.update-apkbuild.outputs.new_sha || github.ref }}
 
@@ -91,7 +91,7 @@ jobs:
       run: bash ./scripts/build.sh
 
     - name: Upload ${{env.APP}} artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{env.APP}}-x86_64-apk
         path: ${{env.APP}}/out/
@@ -108,18 +108,18 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Download ${{env.APP}} artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: ${{env.APP}}-x86_64-apk
         path: artifacts
 
     - name: Create GitHub release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -133,7 +133,7 @@ jobs:
           https://github.com/${{ env.UPSTREAM }}/releases/tag/v${{ needs.detect-updates.outputs.new_version }}
 
     - name: Create or update latest release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:

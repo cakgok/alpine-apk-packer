@@ -10,9 +10,9 @@ jobs:
   publish-repository:
     if: github.event_name == 'workflow_dispatch' || contains(fromJSON('["success","failure"]'), github.event.workflow_run.conclusion)
     runs-on: ubuntu-latest
-    container: alpine:latest
+    container: alpine:edge
     permissions:
-      contents: write
+      contents: read
       pages: write
       id-token: write
 
@@ -25,7 +25,7 @@ jobs:
       run: apk add --no-cache alpine-sdk apk-tools openssl tar gzip git curl jq bash abuild python3
 
     - name: Checkout main branch (for scripts)
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         path: main
 
@@ -62,15 +62,15 @@ jobs:
 
     - name: Configure GitHub Pages
       if: steps.publish.outputs.reindex == 'true'
-      uses: actions/configure-pages@v4
+      uses: actions/configure-pages@v6
 
     - name: Upload Pages artifact
       if: steps.publish.outputs.reindex == 'true'
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v5
       with:
         path: ./final_repo
 
     - name: Deploy to GitHub Pages
       if: steps.publish.outputs.reindex == 'true'
       id: deployment
-      uses: actions/deploy-pages@v4
+      uses: actions/deploy-pages@v5
