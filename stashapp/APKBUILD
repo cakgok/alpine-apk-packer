@@ -1,6 +1,6 @@
 pkgname=stash
 pkgver=0.31.1
-pkgrel=2
+pkgrel=3
 pkgdesc="An organizer for your porn, written in Go"
 url="https://github.com/stashapp/stash"
 arch="x86_64"
@@ -13,11 +13,19 @@ subpackages="$pkgname-openrc::x86_64 $pkgname-python::x86_64"
 
 install="$pkgname.pre-install"
 
+_mechanicalsoup_ver=1.4.0
+_cloudscraper_ver=1.2.71
+_stashapptools_ver=0.2.59
+_pypi=https://files.pythonhosted.org/packages
+
 source="
-	stash-linux-$pkgver::https://github.com/stashapp/stash/releases/download/v$pkgver/stash-linux
-	stash.initd
-	stash.confd
-	"
+      stash-linux-$pkgver::https://github.com/stashapp/stash/releases/download/v$pkgver/stash-linux
+      $_pypi/py3/m/mechanicalsoup/mechanicalsoup-$_mechanicalsoup_ver-py3-none-any.whl
+      $_pypi/py2.py3/c/cloudscraper/cloudscraper-$_cloudscraper_ver-py2.py3-none-any.whl
+      $_pypi/py3/s/stashapp-tools/stashapp_tools-$_stashapptools_ver-py3-none-any.whl
+      stash.initd
+      stash.confd
+      "
 
 pkgusers="stash"
 pkggroups="stash"
@@ -35,17 +43,20 @@ python() {
     pkgdesc="Python runtime and pip for $pkgname plugins"
 	depends="python3 py3-pip py3-requests py3-requests-toolbelt py3-lxml py3-beautifulsoup4 py3-urllib3 py3-certifi py3-parsing"
 
-	python3 -m pip install \
-		--root="$subpkgdir" --prefix=/usr \
-		--no-deps \
-		--no-cache-dir \
-		--disable-pip-version-check \
-		--break-system-packages \
-		mechanicalsoup cloudscraper stashapp-tools
+    python3 -m pip install \
+        --root="$subpkgdir" --prefix=/usr \
+        --no-deps \
+        --no-index \
+        --no-cache-dir \
+        --disable-pip-version-check \
+        --break-system-packages \
+        "$srcdir"/*.whl
 }
-
 sha512sums="
 9d9bfd91f9bfe41090c69a14328e24bff427e1d4b6f22c79c4e26076499b952cf9f4004ef29442c0d6e6d9e159b7f9ab579e2c14e1f34c70f2cdc60cc7a45c6f  stash-linux-0.31.1
+6ded591bbcf25ef25350ccc3228c62a55cc7842139a2ecf74d55ab52e10967180b2598ce4ae8f275a5732bfb851b5beef9c93443cebd8616cb9cc18ffc40015b  mechanicalsoup-1.4.0-py3-none-any.whl
+439239af2e6158497ff1162983cd719f02a07d18e5d8c30cd3bf48aad2b7cce5545615c0a04a419fff3d2895f894624c2f35b9304cfb35d1d684884184bf9a3a  cloudscraper-1.2.71-py2.py3-none-any.whl
+097b8ca69de615eb5e56e69c345c224a84a0c66d83a69d8d178e6bc63b8620c9ba64186308f65b4793a8e2a03ee88f911d5d4545b13e5812109fe28c736b14b3  stashapp_tools-0.2.59-py3-none-any.whl
 c8733aa6b21142d3a313f7b2556e5415963af838707d1238724b6756e514d4c2900bfd8ed7c48b56f9443d3e5333b638dac02aaa412354ad9241a1ae2451847b  stash.initd
 81f10dcd7c7d51296a37cb0b422c1843aba7bd5eae2dbcf461d6f026c309d03f8995e427bd00409aec1dfee463e2f16b1aafaef66e67a649537501b4ffa231b1  stash.confd
 "
