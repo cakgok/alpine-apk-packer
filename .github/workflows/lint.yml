@@ -1,0 +1,29 @@
+name: Lint
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Only the repo's own scripts. The *.initd files are openrc-run scripts
+      - name: shellcheck scripts/
+        run: |
+          docker run --rm -v "$PWD":/repo -w /repo koalaman/shellcheck:v0.11.0 \
+            --severity=warning scripts/*.sh
+
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # The image bundles shellcheck, so run: blocks get checked too.
+      - name: actionlint
+        run: |
+          docker run --rm -v "$PWD":/repo -w /repo rhysd/actionlint:1.7.12 -color
