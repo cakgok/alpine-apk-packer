@@ -16,7 +16,6 @@ jobs:
     secrets: inherit
 
   stashapp:
-    needs: bazarr
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/build.yml
     with:
@@ -25,7 +24,6 @@ jobs:
     secrets: inherit
 
   tautulli:
-    needs: stashapp
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/build.yml
     with:
@@ -34,7 +32,6 @@ jobs:
     secrets: inherit
 
   jellyseerr:
-    needs: tautulli
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/build.yml
     with:
