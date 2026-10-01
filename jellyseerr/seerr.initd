@@ -1,5 +1,5 @@
 #!/sbin/openrc-run
-# /etc/init.d/jellyseerr
+# /etc/init.d/seerr
 
 name="seerr"
 description="seerr Service"

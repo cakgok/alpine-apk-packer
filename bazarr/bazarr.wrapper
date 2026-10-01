@@ -8,6 +8,7 @@ case "$STOP_TIMEOUT" in
     ''|*[!0-9]*) STOP_TIMEOUT=30 ;;
 esac
 
+# shellcheck disable=SC2329  # invoked via trap
 wait_for_exit() {
     timeout="$1"
 
@@ -23,6 +24,7 @@ wait_for_exit() {
     return 1
 }
 
+# shellcheck disable=SC2329  # invoked via trap
 stop_bazarr() {
     trap "" INT TERM
     [ -z "$PID" ] && PID=$!

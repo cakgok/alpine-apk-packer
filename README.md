@@ -92,3 +92,9 @@ gh run download <run-id> -n bazarr-x86_64-apk -D /tmp/bazarr-apk   # grab the bu
 curl -s https://cakgok.github.io/alpine-apk-packer/structure.json | jq '.main.x86_64 | keys'
 gh release view bazarr-latest
 ```
+
+## To-Do
+
+- [ ] Signing key is present in the builder.
+A compromised package might steal it, altough it's useless by itself.
+For more robust packaging, build in one CI job that has no access to the secret, and sign in a second job that runs no third-party code.
