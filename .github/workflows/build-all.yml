@@ -8,33 +8,27 @@ permissions:
   contents: write
 
 jobs:
-  bazarr:
-    uses: ./.github/workflows/build.yml
-    with:
-      APP: bazarr
-      UPSTREAM: morpheus65535/bazarr
-    secrets: inherit
+  list:
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.read.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: read
+        # flatten whole apps.json on a single line with -c
+        run: echo "apps=$(jq -c . apps.json)" >> "$GITHUB_OUTPUT"
 
-  stashapp:
-    if: ${{ !cancelled() }}
+  build:
+    needs: list
+    strategy:
+      fail-fast: false
+      matrix:
+        # two lists like app: [...] and arch: [...] give you every combination
+        # include gives just what you need
+        # list is not a matrix job: it runs once, as a single job, and writes one output. That's safe.
+        include: ${{ fromJSON(needs.list.outputs.apps) }}
     uses: ./.github/workflows/build.yml
     with:
-      APP: stashapp
-      UPSTREAM: stashapp/stash
-    secrets: inherit
-
-  tautulli:
-    if: ${{ !cancelled() }}
-    uses: ./.github/workflows/build.yml
-    with:
-      APP: tautulli
-      UPSTREAM: tautulli/tautulli
-    secrets: inherit
-
-  jellyseerr:
-    if: ${{ !cancelled() }}
-    uses: ./.github/workflows/build.yml
-    with:
-      APP: jellyseerr
-      UPSTREAM: seerr-team/seerr
+      APP: ${{ matrix.app }}
+      UPSTREAM: ${{ matrix.upstream }}
     secrets: inherit

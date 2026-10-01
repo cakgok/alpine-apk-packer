@@ -1,0 +1,6 @@
+[
+  {"app": "bazarr",     "upstream": "morpheus65535/bazarr"},
+  {"app": "stashapp",   "upstream": "stashapp/stash"},
+  {"app": "tautulli",   "upstream": "Tautulli/Tautulli"},
+  {"app": "jellyseerr", "upstream": "seerr-team/seerr"}
+]

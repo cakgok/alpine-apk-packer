@@ -1,11 +1,13 @@
 #!/bin/bash
 set -eo pipefail
 
-if [[ -n ${APPS_OVERRIDE:-} ]]; then
-  read -r -a APPS <<<"$APPS_OVERRIDE"
-else
-  APPS=("bazarr" "stashapp" "tautulli" "jellyseerr")
-fi
+# <(command) is process substitution
+# << would be heredoc
+# why not pipe? because it would be filled in subshell and the main APPS would stay empty
+mapfile -t APPS < <(jq -r '.[].app' main/apps.json)
+
+(( ${#APPS[@]} > 0 )) || { echo "::error::no apps read from main/apps.json"; exit 1; }
+
 REPO_DIR="${1:-gh-pages}"
 ARCH_DIR="$REPO_DIR/main/x86_64"
 FORCE_REINDEX="${FORCE_REINDEX:-false}"
@@ -26,7 +28,7 @@ get_release() {
        "$API/repos/$OWNER/$REPO/releases/tags/$1"
 }
 
-get_apk_assets() { 
+get_apk_assets() {
   jq -r '.assets[]
         | select(.name | endswith(".apk"))
         | "\(.name)|\(.browser_download_url)"'
@@ -57,11 +59,11 @@ contains_item() {
   done
   return 1
 }
- 
+
 for APP in "${APPS[@]}"; do
     echo "--- $APP ---"
     TAG="${APP}-latest"
-    
+
     rel_json=$(get_release "$TAG" || true)
     if [[ -z $rel_json ]]; then
         echo "⚠️  release $TAG not found"
@@ -166,7 +168,7 @@ cp "$REPO_DIR/${KEY_NAME}.pub" /etc/apk/keys/
 
 # Generate and sign the index
 cd "$ARCH_DIR"
-apk index -o APKINDEX.tar.gz *.apk    
+apk index -o APKINDEX.tar.gz *.apk
 abuild-sign -k ~/.abuild/"$KEY_NAME" APKINDEX.tar.gz
 cd - > /dev/null
 
