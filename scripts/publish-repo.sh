@@ -1,36 +1,37 @@
 #!/bin/bash
 set -eo pipefail
 
-# <(command) is process substitution
-# << would be heredoc
-# why not pipe? because it would be filled in subshell and the main APPS would stay empty
-mapfile -t APPS < <(jq -r '.[].app' main/apps.json)
+## Helpers
+wanted_manifest() {
+    for app in "${APPS[@]}"; do
+        if ! release=$(get_release "$app-latest"); then
+            die "cannot read release $app-latest"
+        fi
 
-(( ${#APPS[@]} > 0 )) || { echo "::error::no apps read from main/apps.json"; exit 1; }
+        version=$(get_release_version <<<"$release")
+        if [[ -z $version ]]; then
+            die "no version in $app-latest"
+        fi
 
-REPO_DIR="${1:-gh-pages}"
-ARCH_DIR="$REPO_DIR/main/x86_64"
-FORCE_REINDEX="${FORCE_REINDEX:-false}"
-NEEDS_REINDEX="false"
+        apk_lines_for_version "$version" <<<"$release"
+    done | sort
+}
 
-export GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
-export API="https://api.github.com"
-export OWNER="$(cut -d/ -f1 <<<"$GITHUB_REPOSITORY")"
-export REPO="$(cut -d/ -f2- <<<"$GITHUB_REPOSITORY")"
-HDR=("-H" "Accept: application/vnd.github+json")
-[[ -n $GH_TOKEN ]] && HDR+=("-H" "Authorization: Bearer $GH_TOKEN")
+# Print "name size digest" for one file, in the same format GitHub's API uses.
+manifest_line() {
+    local file=$1
+    local size hash
+    size=$(stat -c %s "$file")
+    hash=$(sha256sum "$file" | cut -d' ' -f1)
+    echo "$(basename "$file") $size sha256:$hash"
+}
 
-mkdir -p "$ARCH_DIR"
-
-# check the current manifest, only update if they are changes
-want=$(wanted_manifest)
-live=$(curl -sfL "https://${OWNER,,}.github.io/${REPO}/manifest.txt" || true)
-
-if [[ $want == "$live" && $FORCE_REINDEX == false ]]; then
-    echo "✅ Repository is up-to-date. No changes detected."
-    echo "reindex=false" >> "$GITHUB_OUTPUT"
-    exit 0
-fi
+# Print the manifest of every APK in a folder, sorted.
+manifest_of_dir() {
+    for file in "$1"/*.apk; do
+        manifest_line "$file"
+    done | sort
+}
 
 # Since we release as app-latest as a moving tag
 get_release() {
@@ -71,8 +72,8 @@ contains_item() {
 }
 
 die() {
-    echo "::error::$*" >&2;
-    exit 1;
+    echo "::error::$*" >&2
+    exit 1
 }
 
 # From one release's JSON (on stdin), print "name size digest" for each APK of version $1.
@@ -85,20 +86,35 @@ apk_lines_for_version() {
   '
 }
 
-wanted_manifest() {
-    for app in "${APPS[@]}"; do
-        if ! release=$(get_release "$app-latest"); then
-            die "cannot read release $app-latest"
-        fi
+# <(command) is process substitution
+# << would be heredoc
+# why not pipe? because it would be filled in subshell and the main APPS would stay empty
+mapfile -t APPS < <(jq -r '.[].app' main/apps.json)
 
-        version=$(get_release_version <<<"$release")
-        if [[ -z $version ]]; then
-            die "no version in $app-latest"
-        fi
+(( ${#APPS[@]} > 0 )) || { echo "::error::no apps read from main/apps.json"; exit 1; }
 
-        apk_lines_for_version "$version" <<<"$release"
-    done | sort
-}
+REPO_DIR="${1:-gh-pages}"
+ARCH_DIR="$REPO_DIR/main/x86_64"
+
+GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+API="https://api.github.com"
+OWNER="${GITHUB_REPOSITORY%%/*}"
+REPO="${GITHUB_REPOSITORY#*/}"
+
+HDR=("-H" "Accept: application/vnd.github+json")
+[[ -n $GH_TOKEN ]] && HDR+=("-H" "Authorization: Bearer $GH_TOKEN")
+
+mkdir -p "$ARCH_DIR"
+
+# check the current manifest, only update if they are changes
+want=$(wanted_manifest)
+live=$(curl -sfL "https://${OWNER,,}.github.io/${REPO}/manifest.txt" || true)
+
+if [[ $want == "$live" && $FORCE_REINDEX == false ]]; then
+    echo "✅ Repository is up-to-date. No changes detected."
+    echo "reindex=false" >> "$GITHUB_OUTPUT"
+    exit 0
+fi
 
 for APP in "${APPS[@]}"; do
     echo "--- $APP ---"
@@ -162,18 +178,10 @@ for APP in "${APPS[@]}"; do
             fi
         done
         if [[ $MAIN_FOUND == false ]]; then
-            echo "❌ release $TAG is missing main package $APK_ORIGIN"
-            exit 1
+            die "release $TAG is missing main package '$APK_ORIGIN'"
         fi
     done
 done
-
-# Exit early if no changes detected and not forced
-if [[ "$NEEDS_REINDEX" = "false" && "$FORCE_REINDEX" = "false" ]]; then
-    echo "✅ Repository is up-to-date. No changes detected."
-    echo "reindex=false" >> "$GITHUB_OUTPUT"
-    exit 0
-fi
 
 echo "🔥 Changes detected or force reindex requested. Regenerating repository..."
 
@@ -187,22 +195,6 @@ echo "Public key created at '$REPO_DIR/${KEY_NAME}.pub'."
 
 mkdir -p /etc/apk/keys/
 cp "$REPO_DIR/${KEY_NAME}.pub" /etc/apk/keys/
-
-# Print "name size digest" for one file, in the same format GitHub's API uses.
-manifest_line() {
-    local file=$1
-    local size hash
-    size=$(stat -c %s "$file")
-    hash=$(sha256sum "$file" | cut -d' ' -f1)
-    echo "$(basename "$file") $size sha256:$hash"
-}
-
-# Print the manifest of every APK in a folder, sorted.
-manifest_of_dir() {
-    for file in "$1"/*.apk; do
-        manifest_line "$file"
-    done | sort
-}
 
 have=$(manifest_of_dir "$ARCH_DIR")
 
