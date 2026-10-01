@@ -2,7 +2,7 @@ pkgname=scraparr
 pkgver=2.2.0
 pkgrel=0
 pkgdesc="Scraparr - Prometheus for your download clients"
-url="https://scraparr.media"
+url="github.com/thecfu/scraparr"
 arch="x86_64"
 license="GPL-3.0-or-later"
 depends="
@@ -32,7 +32,7 @@ package() {
     install -dm755 "$pkgdir/usr/lib/scraparr"
     install -dm755 "$pkgdir/usr/bin"
 
-    cp -a "$srcdir/src" "$pkgdir/usr/lib/scraparr/"
+    cp -a "$builddir/src" "$pkgdir/usr/lib/scraparr/"
 
     install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir"/usr/bin/$pkgname
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
