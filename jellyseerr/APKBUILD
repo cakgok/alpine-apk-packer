@@ -23,14 +23,11 @@ options="!check !tracedeps !strip !debug"
 
 prepare() {
     default_prepare
-    cd "$builddir"
     sed -i 's/husky install//' package.json
     echo "{\"commitTag\": \"$pkgver\"}" > committag.json
 }
 
 build() {
-    cd "$builddir"
-
     export NEXT_TELEMETRY_DISABLED=1
     export CYPRESS_INSTALL_BINARY=0
     export SHARP_IGNORE_GLOBAL_LIBVIPS=1
@@ -49,7 +46,6 @@ package() {
     install -dm755 "$pkgdir/var/lib/seerr"
     install -dm755 "$pkgdir/var/log/seerr"
 
-    cd "$builddir"
     cp -a .next dist public node_modules \
         package.json seerr-api.yml next.config.ts \
         "${pkgdir}/usr/lib/seerr"
@@ -58,7 +54,7 @@ package() {
     # Remove build cache
 	rm -rf "$pkgdir/usr/lib/seerr/node_modules/.cache"
 
-	cd "$pkgdir/usr/lib/seerr"
+	cd "$pkgdir/usr/lib/seerr" || return 1
 
 	# Remove Source Maps (Pure debugging files, 100% safe)
 	find . -name "*.map" -type f -delete
