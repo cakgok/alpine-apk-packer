@@ -9,61 +9,18 @@ done
 ALPINE_VERSION="${ALPINE_VERSION:-edge}"
 SRC_DIR="${PWD}/${APP_NAME}"
 OUT_DIR="${SRC_DIR}/out"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p "${OUT_DIR}"
 
 echo "🔧 Building ${APP_NAME} for ${TARGET_ARCH}"
 echo "🐧 Alpine version: ${ALPINE_VERSION}"
 echo "📦 Output directory: ${OUT_DIR}"
 
-#Run the build inside a Docker container
-# orig=... reads the numeric owner of the mounted folder as the container sees it
-# trap .. means "run this when the script exits, for any reason". That includes set -e aborting after a failed build
 docker run --rm \
   -v "${SRC_DIR}":/work \
   -v "${OUT_DIR}":/out \
-  -e "PRIVATE_KEY=${PRIVATE_KEY}" \
-  -e "KEY_NAME=${KEY_NAME}" \
-  -e "TARGET_ARCH=${TARGET_ARCH}" \
-  "alpine:${ALPINE_VERSION}" sh -euxo pipefail -c '
-    orig=$(stat -c %u:%g /work)
-    trap "chown -R $orig /work /out" EXIT
-    apk add --no-cache abuild sudo
+  -v "${SCRIPT_DIR}/build-in-container.sh":/build-in-container.sh:ro \
+  -e PRIVATE_KEY -e KEY_NAME -e TARGET_ARCH \
+  "alpine:${ALPINE_VERSION}" sh /build-in-container.sh
 
-    adduser -D builder
-    addgroup builder abuild
-    echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder
-    chown -R builder:abuild /work /out
-
-    su builder -c "
-      set -euo pipefail
-      cd /work
-
-      mkdir -p ~/.abuild
-      printf \"%s\n\" \"\${PRIVATE_KEY}\" > ~/.abuild/\${KEY_NAME}
-      chmod 600 ~/.abuild/\${KEY_NAME}
-
-      openssl rsa -in ~/.abuild/\${KEY_NAME} -pubout -out ~/.abuild/\${KEY_NAME}.pub
-      chmod 644 ~/.abuild/\${KEY_NAME}.pub
-
-      sudo cp ~/.abuild/\${KEY_NAME}.pub /etc/apk/keys/
-      echo \"PACKAGER_PRIVKEY=\$HOME/.abuild/\${KEY_NAME}\" >> ~/.abuild/abuild.conf
-
-      export CARCH=\${TARGET_ARCH}
-
-      ls -la ~/.abuild/
-      cat ~/.abuild/abuild.conf
-
-      # Run the build
-      abuild -r -P \$HOME/packages
-
-      # Copy the built packages to the output directory
-      echo \"📦 Copying packages to output directory...\"
-      find ~/packages -name \"*.apk\" -type f -exec cp {} /out/ \; || echo \"No packages found to copy\"
-
-      # List what we copied
-      echo \"📋 Files in output directory:\"
-      ls /out/*.apk >/dev/null 2>&1 || { echo \"::error::abuild produced no .apk files\"; exit 1; }
-    "
-  '
-
-echo "✅ Build complete. Artifacts now in ${OUT_DIR}"
+  echo "✅ Build complete. Artifacts now in ${OUT_DIR}"
