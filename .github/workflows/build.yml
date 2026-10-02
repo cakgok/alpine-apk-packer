@@ -106,8 +106,21 @@ jobs:
         retention-days: 30
         if-no-files-found: error
 
+  test-apk:
+    needs: build-apk
+    if: ${{ !cancelled() && needs.build-apk.result == 'success' }}
+    runs-on: ubuntu-latest
+    container: alpine:edge          # same trick as pages.yml: steps run inside Alpine
+    steps:
+      - uses: actions/checkout@v7   # for apps.json, test-apk.sh, smoke.sh
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ env.APP }}-x86_64-apk
+          path: ${{ env.APP }}/out
+      - run: apk add --no-cache jq && sh scripts/test-apk.sh "$APP"
+
   create-releases:
-    needs: [detect-updates, build-apk]
+    needs: [detect-updates, build-apk, test-apk]
     if: needs.detect-updates.outputs.has_updates == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
