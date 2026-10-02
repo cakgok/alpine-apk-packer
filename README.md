@@ -54,18 +54,16 @@ console output to syslog.
 - publish skips the deploy if manifest.txt matches the release digests
 - local test build: scripts/build.sh with a throwaway key
 
-## Useful commands so I don't forget
+## Useful commands
 
 ### Update checksums after an edit
-
 ```sh
 app=tautulli
 docker run --rm -v "$PWD/$app":/work -w /work alpine:edge \
   sh -c "apk add -q abuild && abuild -F checksum"
 ```
 
-### Building locally
-
+### Build locally
 ```sh
 openssl genrsa -out ~/.cache/apk-test.rsa 2048
 APP_NAME=bazarr TARGET_ARCH=x86_64 KEY_NAME=apk-test.rsa \
@@ -73,7 +71,7 @@ APP_NAME=bazarr TARGET_ARCH=x86_64 KEY_NAME=apk-test.rsa \
 ls bazarr/out/
 ```
 
-### Take a Look Inside APK
+### Look inside an APK
 
 ```sh
 tar -tzf bazarr/out/bazarr-1.6.2-r0.apk | head -20     # control files (.PKGINFO, .pre-install) come first
@@ -92,6 +90,16 @@ gh run download <run-id> -n bazarr-x86_64-apk -D /tmp/bazarr-apk   # grab the bu
 ```sh
 curl -s https://cakgok.github.io/alpine-apk-packer/structure.json | jq '.main.x86_64 | keys'
 gh release view bazarr-latest
+```
+
+## Also available as justfile
+```
+    build app    # build with the throwaway key
+    checksum app # update sha512sums after editing a local source file
+    default      # list recipes
+    inspect apk  # list an APK's files
+    lint         # same lint as CI
+    test app     # install-test what `just build` produced
 ```
 
 ## To-Do
