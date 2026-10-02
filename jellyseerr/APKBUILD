@@ -1,6 +1,6 @@
 pkgname=seerr
 pkgver=3.5.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Plex/Emby/Jellyfin request management system (Next-Gen Overseerr fork)"
 url="https://github.com/seerr-team/seerr"
 arch="x86_64"
@@ -70,7 +70,7 @@ package() {
 	find node_modules -type f \( -name "*.dylib" -o -name "*.dll" -o -name "*.exe" \) -delete
 
 	# Remove TypeScript / Types
-	find node_modules -type d -name "typescript" -exec rm -rf {} +
+	find node_modules -type d -name "typescript" -not -path "*/next/dist/*" -exec rm -rf {} +
 	find node_modules -type f \( -name "*.d.ts" -o -name "*.flow" \) -delete
 
 	# Remove C/C++ Source files (They are already compiled)
