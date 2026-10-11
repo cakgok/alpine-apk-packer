@@ -110,7 +110,12 @@ jobs:
     needs: build-apk
     if: ${{ !cancelled() && needs.build-apk.result == 'success' }}
     runs-on: ubuntu-latest
-    container: alpine:edge          # same trick as pages.yml: steps run inside Alpine
+    timeout-minutes: 30
+    container:
+      image: alpine:edge
+      # PID 1 is `tail -f /dev/null`, which never reaps zombies.
+      # without an init, the exited supervise-daemon stays a zombie and `rc-service stop` waits forever
+      options: --init
     steps:
       - uses: actions/checkout@v7   # for apps.json, test-apk.sh, smoke.sh
       - uses: actions/download-artifact@v8

@@ -14,7 +14,7 @@ build app:
 
 # install-test what `just build` produced
 test app:
-    docker run --rm --network host -v "$PWD":/w -w /w alpine:edge sh -c "apk add -q jq && sh scripts/test-apk.sh {{app}}"
+    docker run --rm --init --network host -v "$PWD":/w -w /w alpine:edge sh -c "apk add -q jq && timeout 1200 sh scripts/test-apk.sh {{app}}"
 
 # list an APK's files
 inspect apk:
