@@ -9,6 +9,10 @@ on:
         description: 'Build even if no new version (test build, no release)'
         type: boolean
         default: false
+    outputs:
+      released:
+        description: '"true" if a new release was created, empty otherwise'
+        value: ${{ jobs.create-releases.outputs.released }}
 
 concurrency:
   group: apk-${{ inputs.APP }}
@@ -131,6 +135,8 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: write
+    outputs:
+      released: ${{ steps.done.outputs.released }}
 
     steps:
     - name: Checkout repository
@@ -209,3 +215,7 @@ jobs:
         git fetch --tags --force
         git tag -f "$LATEST_TAG" "${VERSION_TAG}^{}"
         git push --force origin "refs/tags/${LATEST_TAG}"
+
+    - name: Mark as released
+      id: done
+      run: echo "released=true" >> "$GITHUB_OUTPUT"

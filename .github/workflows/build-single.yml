@@ -26,3 +26,13 @@ jobs:
       APP: ${{ inputs.app_to_build }}
       FORCE_BUILD: ${{ inputs.force_build }}
     secrets: inherit
+
+  publish:
+    needs: app
+    if: needs.app.outputs.released == 'true'
+    uses: ./.github/workflows/pages.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    secrets: inherit

@@ -20,6 +20,8 @@ jobs:
 
   build:
     needs: list
+    # without this the job is named after every matrix key: "build (jellyseerr, seerr, seerr-team/seerr, 5055)"
+    name: ${{ matrix.app }}
     strategy:
       fail-fast: false
       matrix:
@@ -30,4 +32,16 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       APP: ${{ matrix.app }}
+    secrets: inherit
+
+  publish:
+    needs: build
+    # released is "true" if any matrix entry released: entries that didn't release leave it empty,
+    # and an empty output never overwrites a set one. !cancelled() so one failed app doesn't block the rest.
+    if: ${{ !cancelled() && needs.build.outputs.released == 'true' }}
+    uses: ./.github/workflows/pages.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     secrets: inherit

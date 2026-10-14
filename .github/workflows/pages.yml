@@ -2,13 +2,25 @@
 name: Publish Repository
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Build All", "Build Single App"]
-    types: [completed]
+    inputs:
+      force_reindex:
+        description: 'Regenerate the index even if releases did not change'
+        type: boolean
+        default: true
+  # called by Build All / Build Single after the builds, only if at least one app released
+  workflow_call:
+    inputs:
+      force_reindex:
+        type: boolean
+        default: false
+
+# Build All and Build Single (or a manual run) can overlap; don't deploy to Pages twice at once
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   publish-repository:
-    if: github.event_name == 'workflow_dispatch' || contains(fromJSON('["success","failure"]'), github.event.workflow_run.conclusion)
     runs-on: ubuntu-latest
     container: alpine:edge
     permissions:
@@ -40,7 +52,7 @@ jobs:
         KEY_NAME:         ${{ secrets.KEY_NAME }}
         GITHUB_SERVER_URL: ${{ github.server_url }}
         GITHUB_REPOSITORY: ${{ github.repository }}
-        FORCE_REINDEX: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
+        FORCE_REINDEX: ${{ inputs.force_reindex && 'true' || 'false' }}
       run: |
         chmod +x main/scripts/publish-repo.sh
         main/scripts/publish-repo.sh final_repo
