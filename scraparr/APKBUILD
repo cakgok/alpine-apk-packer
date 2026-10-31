@@ -1,8 +1,8 @@
 pkgname=scraparr
-pkgver=2.2.0
+pkgver=3.2.0
 pkgrel=0
-pkgdesc="Scraparr - Prometheus for your download clients"
-url="github.com/thecfu/scraparr"
+pkgdesc="Prometheus exporter for the *arr suite"
+url="https://github.com/thecfu/scraparr"
 arch="x86_64"
 license="GPL-3.0-or-later"
 depends="
@@ -30,9 +30,8 @@ source="$pkgname-$pkgver.zip::https://github.com/thecfu/scraparr/archive/refs/ta
 
 package() {
     install -dm755 "$pkgdir/usr/lib/scraparr"
-    install -dm755 "$pkgdir/usr/bin"
 
-    cp -a "$builddir/src" "$pkgdir/usr/lib/scraparr/"
+    cp -a "$builddir"/src/. "$pkgdir/usr/lib/scraparr/"
 
     install -Dm755 "$srcdir"/$pkgname.wrapper "$pkgdir"/usr/bin/$pkgname
     install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
@@ -40,7 +39,9 @@ package() {
 }
 
 sha512sums="
-1
-2
-3
+8d73c3550f5c35324a7ca4cb62cc8c53ba4852f20eacbe2f0a5e1c9999657313a489dab385c44386a354bf20504e4a4ef39bb2e6a2c31403b14d9c269fc9156d  scraparr-3.2.0.zip
+26204509b5db7d2a5a93e9c115be2c95d2a7b4fc62d54cc1f38e9eadfff1e5d364b01cc499bc3d1acf7f952c7672c322c586d9eecc3314442d80ca169ea65e80  scraparr.confd
+eed9ca9faa337f0e3ad95a288c7242ce3d49b4714ffcb55b94709e1e595df626b5b139d314d3ab19353171b9b5b2811c62f3a4641e3569cb01d175c6913c07b6  scraparr.initd
+003cef5fd39cdfc2804c8fc7d91a76b8c8f2d8b48ee3a1876b4d6f408c1022cea51543be5a374d059bc5e6b842596d93bb57d11803796f51f5cca5bef1053054  scraparr.wrapper
+b17ff741373d7c48dddd5378d5fb51050166baa353f33e9eae3e3c967728794955ca933d34312bfb26728cd29c72d30083a40d50fbfa11f99ac96480478b59f8  scraparr.pre-install
 "

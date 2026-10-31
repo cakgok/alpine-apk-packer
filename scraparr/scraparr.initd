@@ -4,6 +4,9 @@
 name="Scraparr"
 description="Scraparr Daemon"
 
+output_logger="logger -t scraparr -p daemon.info"
+error_logger="logger -t scraparr -p daemon.err"
+
 command_user="${command_user:-scraparr:scraparr}"
 
 supervisor="supervise-daemon"
@@ -13,5 +16,6 @@ respawn_max=10
 
 depend() {
     need net
+    use logger
     after firewall
 }

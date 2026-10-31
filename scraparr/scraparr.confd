@@ -1,53 +1,87 @@
 # /etc/conf.d/scraparr
-# This file is sourced by the /etc/init.d/scraparr script and allows you
-# to override default settings.
+# Sourced by /etc/init.d/scraparr.
+# Scraparr is configured through environment variables.
+# At least one connector (<SERVICE>_URL + <SERVICE>_API_KEY) is required.
 command_user="scraparr:scraparr"
 
 # --- General (optional) ---
-# GENERAL_ADDRESS=0.0.0.0
-# GENERAL_PORT=7100
-# GENERAL_PATH=/metrics
+# export GENERAL_ADDRESS=0.0.0.0
+# export GENERAL_PORT=7100
+# export GENERAL_PATH=/metrics
+# export GENERAL_WORKERS=5
+# export GENERAL_LOG_LEVEL=INFO    # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # --- Auth (optional) ---
-# AUTH_USERNAME=user
-# AUTH_PASSWORD=pass
-# AUTH_TOKEN=token
+# export AUTH_USERNAME=user
+# export AUTH_PASSWORD=pass
+# export AUTH_TOKEN=token
+
+# Any secret can be read from a file instead by appending _FILE, e.g.
+# export SONARR_API_KEY_FILE=/etc/scraparr/sonarr_api_key
+
+# Every connector also accepts these optional fields:
+#   <SERVICE>_ALIAS, <SERVICE>_API_VERSION, <SERVICE>_INTERVAL (seconds),
+#   <SERVICE>_DETAILED (true/false)
 
 # --- Sonarr ---
-# SONARR_URL=http://sonarr:8989
-# SONARR_API_KEY=key
-# SONARR_ALIAS=sonarr
-# SONARR_API_VERSION=v3
-# SONARR_INTERVAL=30
-# SONARR_DETAILED=true
+# export SONARR_URL=http://localhost:8989
+# export SONARR_API_KEY=key
+# export SONARR_EPISODE_QUALITY_STATS=true
 
 # --- Radarr ---
-# RADARR_URL=http://radarr:7878
-# RADARR_API_KEY=key
-# RADARR_ALIAS=radarr
-# RADARR_API_VERSION=v3
-# RADARR_INTERVAL=30
-# RADARR_DETAILED=true
+# export RADARR_URL=http://localhost:7878
+# export RADARR_API_KEY=key
 
 # --- Prowlarr ---
-# PROWLARR_URL=http://prowlarr:9696
-# PROWLARR_API_KEY=key
-# PROWLARR_ALIAS=prowlarr
-# PROWLARR_API_VERSION=v1
-# PROWLARR_INTERVAL=30
-# PROWLARR_DETAILED=true
+# export PROWLARR_URL=http://localhost:9696
+# export PROWLARR_API_KEY=key
 
 # --- Bazarr ---
-# BAZARR_URL=http://bazarr:6767
-# BAZARR_API_KEY=key
-# BAZARR_ALIAS=bazarr
-# BAZARR_INTERVAL=30
-# BAZARR_DETAILED=true
+# export BAZARR_URL=http://localhost:6767
+# export BAZARR_API_KEY=key
 
-# --- Jellyseerr ---
-# JELLYSEERR_URL=http://jellyseerr:5055
-# JELLYSEERR_API_KEY=key
-# JELLYSEERR_ALIAS=jellyseerr
-# JELLYSEERR_INTERVAL=30
-# JELLYSEERR_DETAILED=true
+# --- Readarr ---
+# export READARR_URL=http://localhost:8787
+# export READARR_API_KEY=key
 
+# --- Lidarr ---
+# export LIDARR_URL=http://localhost:8686
+# export LIDARR_API_KEY=key
+
+# --- Whisparr ---
+# export WHISPARR_URL=http://localhost:6969
+# export WHISPARR_API_KEY=key
+
+# --- Sportarr ---
+# export SPORTARR_URL=http://localhost:PORT
+# export SPORTARR_API_KEY=key
+
+# --- Seerr ---
+# export SEERR_URL=http://localhost:5055
+# export SEERR_API_KEY=key
+
+# --- Jellyfin ---
+# export JELLYFIN_URL=http://localhost:8096
+# export JELLYFIN_API_KEY=key
+# export JELLYFIN_WITHIN=300
+# export JELLYFIN_SESSION_DETAILS=false
+# export JELLYFIN_CLIENT_INFO=false
+
+# --- Kavita ---
+# export KAVITA_URL=http://localhost:5000
+# export KAVITA_API_KEY=key
+# export KAVITA_LEGACY_AUTH=false
+
+# --- Komga ---
+# export KOMGA_URL=http://localhost:25600
+# export KOMGA_API_KEY=key
+
+# --- SABnzbd ---
+# export SABNZBD_URL=http://localhost:8080
+# export SABNZBD_API_KEY=key
+
+# --- Multiple instances of one service: put an alias between name and field ---
+# export SONARR_MAIN_URL=http://localhost:8989
+# export SONARR_MAIN_API_KEY=key
+# export SONARR_ANIME_URL=http://localhost:8990
+# export SONARR_ANIME_API_KEY=key
