@@ -107,3 +107,5 @@ gh release view bazarr-latest
 - [ ] Signing key is present in the builder.
 A compromised package might steal it, altough it's useless by itself.
 For more robust packaging, build in one CI job that has no access to the secret, and sign in a second job that runs no third-party code.
+- [ ] Publish re-uploads every APK on each time.
+Move APKs to object storage and sync the changes only.

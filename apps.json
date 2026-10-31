@@ -2,5 +2,6 @@
   {"app": "bazarr",     "pkg": "bazarr",   "upstream": "morpheus65535/bazarr", "port": 6767},
   {"app": "stashapp",   "pkg": "stash",    "upstream": "stashapp/stash",       "port": 9999},
   {"app": "tautulli",   "pkg": "tautulli", "upstream": "Tautulli/Tautulli",    "port": 8181},
-  {"app": "jellyseerr", "pkg": "seerr",    "upstream": "seerr-team/seerr",     "port": 5055}
+  {"app": "jellyseerr", "pkg": "seerr",    "upstream": "seerr-team/seerr",     "port": 5055},
+  {"app": "scraparr",   "pkg": "scraparr", "upstream": "thecfu/scraparr",      "port": 7100}
 ]
