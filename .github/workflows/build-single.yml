@@ -11,6 +11,7 @@ on:
             - stashapp
             - tautulli
             - jellyseerr
+            - scraparr
         force_build:
           description: 'Build even if no new version (test build, no release)'
           type: boolean

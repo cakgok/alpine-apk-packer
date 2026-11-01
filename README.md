@@ -13,6 +13,7 @@ An automated Alpine package repository for self-hosted apps that aren't in
 | Package | App | Upstream |
 |---|---|---|
 | `bazarr`, `bazarr-openrc` | Subtitle manager for Sonarr/Radarr | [morpheus65535/bazarr](https://github.com/morpheus65535/bazarr) |
+| `scraparr`, `scraparr-openrc` | Prometheus exporter for the \*arr suite | [thecfu/scraparr](https://github.com/thecfu/scraparr) |
 | `seerr`, `seerr-openrc` | Media request manager for Plex/Jellyfin/Emby | [seerr-team/seerr](https://github.com/seerr-team/seerr) |
 | `stash`, `stash-openrc`, `stash-python` | Media organizer | [stashapp/stash](https://github.com/stashapp/stash) |
 | `tautulli`, `tautulli-openrc` | Plex monitoring | [Tautulli/Tautulli](https://github.com/Tautulli/Tautulli) |
