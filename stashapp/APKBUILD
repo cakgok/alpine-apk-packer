@@ -1,6 +1,6 @@
 pkgname=stash
-pkgver=0.31.1
-pkgrel=3
+pkgver=0.32.0
+pkgrel=0
 pkgdesc="An organizer for your porn, written in Go"
 url="https://github.com/stashapp/stash"
 arch="x86_64"
@@ -53,7 +53,7 @@ python() {
         "$srcdir"/*.whl
 }
 sha512sums="
-9d9bfd91f9bfe41090c69a14328e24bff427e1d4b6f22c79c4e26076499b952cf9f4004ef29442c0d6e6d9e159b7f9ab579e2c14e1f34c70f2cdc60cc7a45c6f  stash-linux-0.31.1
+bd8bc77848d676bcaa6a0fab5f6bcf7fe1380cc792fbda5ea5ba94492df910ce2f894f26a359bcbfc707f23945ddeed23e27bca84a26d9b96278155ce5a1c0b7  stash-linux-0.32.0
 6ded591bbcf25ef25350ccc3228c62a55cc7842139a2ecf74d55ab52e10967180b2598ce4ae8f275a5732bfb851b5beef9c93443cebd8616cb9cc18ffc40015b  mechanicalsoup-1.4.0-py3-none-any.whl
 439239af2e6158497ff1162983cd719f02a07d18e5d8c30cd3bf48aad2b7cce5545615c0a04a419fff3d2895f894624c2f35b9304cfb35d1d684884184bf9a3a  cloudscraper-1.2.71-py2.py3-none-any.whl
 097b8ca69de615eb5e56e69c345c224a84a0c66d83a69d8d178e6bc63b8620c9ba64186308f65b4793a8e2a03ee88f911d5d4545b13e5812109fe28c736b14b3  stashapp_tools-0.2.59-py3-none-any.whl
