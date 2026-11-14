@@ -47,7 +47,7 @@ package() {
     install -dm755 "$pkgdir/var/log/seerr"
 
     cp -a .next dist public node_modules \
-        package.json seerr-api.yml next.config.ts \
+        package.json seerr-api.yml next.config.* \
         "${pkgdir}/usr/lib/seerr"
 
     # Cleanup
